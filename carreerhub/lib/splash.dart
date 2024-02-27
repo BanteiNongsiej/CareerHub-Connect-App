@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Delay the navigation to the Register screen for 2 seconds
     Timer(
       const Duration(seconds: 3),
-      () => Navigator.pushReplacementNamed(context, '/login'),
+      () => Navigator.pushReplacementNamed(context, '/register'),
     );
   }
 
@@ -28,16 +28,16 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // const Text(
+            //   'Welcome to',
+            //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            // ),
             Image.asset(
-              'images/1.png', // Provide the path to your logo image
+              'images/logo.png', // Provide the path to your logo image
               width: 300, // Adjust the width as needed
               height: 300, // Adjust the height as needed
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Welcome',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
           ],
         ),
       ),
