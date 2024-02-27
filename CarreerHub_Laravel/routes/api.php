@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\JobController;
 use App\Http\Controllers\UserInfoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,5 +25,9 @@ Route::controller(AuthController::class)->group(function(){
     Route::post('/login', 'Login');
 });
 Route::controller(UserInfoController::class)->group(function(){
-    Route::get('/dashboard/{$id}','UserDetails');
+    Route::get('/dashboard/{id}','UserDetails');
+});
+Route::controller(JobController::class)->group(function(){
+    Route::post('/dashboard/job/insert','insert');
+    Route::get('/dashboard/job/show/{job_id}','show');
 });
