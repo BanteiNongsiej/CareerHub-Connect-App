@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\Job;
 use Illuminate\Http\Request;
+use App\Http\Requests\JobRequest;
 
 class JobController extends Controller
 {
-    public function insert(Request $request){
+    public function insert(JobRequest $request){
         try{
             $job=new Job();
             $job->user_id=$request->user_id;
@@ -41,6 +42,40 @@ class JobController extends Controller
             return response()->json([
                 "data" => $job,//call UserResource
             ],200);
+        }
+    }
+    public function delete(Job $job){
+        try{
+            $job->delete();
+            return response()->json([
+                "data"=>$job,
+                "message"=>"Job deleted successfully"
+            ],201);
+        }catch(Exception $e){
+            return response()->json([
+                "message"=>"Job deleted successfully"
+            ]);
+        }
+    }
+    public function update(JobRequest $request,Job $job){
+        try{
+            $job=new Job();
+            $job->user_id=$request->user_id;
+            $job->title = $request->title;
+            $job->company_name = $request->company_name;
+            $job->salary = $request->salary;
+            $job->location = $request->location;
+            $job->job_type = $request->job_type;
+            $job->description = $request->description;
+            $job->save();
+            return response()->json([
+                "data"=>$job,
+                "message"=>"Record update successfully"
+            ],201);
+        }catch(Exception $e){
+            return response()->json([
+                "message"=>"Job is not update"
+            ],404);
         }
     }
 }

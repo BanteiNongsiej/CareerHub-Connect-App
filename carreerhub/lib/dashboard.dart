@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -166,21 +167,159 @@ class Page1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Padding(padding: EdgeInsets.all(8)),
-              Text('data'),
-            ],
-          ),
+    return Scaffold(
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          crossAxisSpacing: 8.0,
+          mainAxisSpacing: 8.0,
+        ),
+        itemCount: jobList.length,
+        itemBuilder: (context, index) {
+          return JobCard(job: jobList[index]);
+        },
+      ),
+    );
+  }
+}
+
+class Job {
+  final String title;
+  final String location;
+  final String jobType;
+  final String salary;
+
+  Job({
+    required this.title,
+    required this.location,
+    required this.jobType,
+    required this.salary,
+  });
+}
+
+class JobCard extends StatefulWidget {
+  final Job job;
+
+  JobCard({super.key, required this.job});
+
+  @override
+  State<JobCard> createState() => _JobCardState();
+}
+
+class _JobCardState extends State<JobCard> {
+  bool isBooked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.0, // Set the elevation of the card
+      child: InkWell(
+        // Wrap the card in InkWell for tapping effect
+        onTap: () {
+          // Handle tap on the job card
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.topRight,
+              children: [
+                Container(
+                  margin: const EdgeInsets.all(20),
+                  width:
+                      double.infinity, // Make the container take the full width
+                  height: 250.0,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(
+                          'images/company.jpeg'), // Set the background image
+                      fit: BoxFit.cover, // Cover the entire container
+                    ),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10.0),
+                        topRight: Radius.circular(50.0),
+                        bottomLeft: Radius.circular(10),
+                        bottomRight: Radius.circular(10)),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isBooked = !isBooked;
+                    });
+                  },
+                  child: IconButton(
+                    icon: FaIcon(
+                      isBooked
+                        ? FontAwesomeIcons.solidBookmark
+                        : FontAwesomeIcons.bookmark,
+                      color: isBooked
+                        ? const Color.fromARGB(255, 94, 90, 90)
+                        : const Color.fromARGB(255, 127, 95, 95),
+                    ),
+                    onPressed: () {
+                      // Handle save icon click
+                      print('Bookmark Clicked');
+                    },
+                  ),
+                )
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.job.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4.0),
+                  Row(
+                    children: [
+                      // ignore: deprecated_member_use
+                      const FaIcon(FontAwesomeIcons.mapMarkerAlt, size: 14.0),
+                      const SizedBox(width: 4.0),
+                      Text(widget.job.location),
+                    ],
+                  ),
+                  const SizedBox(height: 4.0),
+                  Text('Job Type: ${widget.job.jobType}'),
+                  const SizedBox(height: 4.0),
+                  Text('Salary: ${widget.job.salary}'),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+List<Job> jobList = [
+  Job(
+    title: 'Software Engineer',
+    location: 'San Francisco, CA',
+    jobType: 'Full-time',
+    salary: '\$120,000 - \$150,000',
+  ),
+  Job(
+    title: 'UX/UI Designer',
+    location: 'New York, NY',
+    jobType: 'Contract',
+    salary: '\$80,000 - \$100,000',
+  ),
+  Job(
+    title: 'Cleaner',
+    location: 'Shillong',
+    jobType: 'Part-time',
+    salary: 'Rs.3000- Rs.4500',
+  ),
+  // Add more job data as needed
+];
 
 class Page2 extends StatelessWidget {
   const Page2({Key? key}) : super(key: key);

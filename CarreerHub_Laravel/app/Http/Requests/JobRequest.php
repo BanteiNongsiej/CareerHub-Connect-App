@@ -22,7 +22,12 @@ class JobRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
+           'title'=>'required|string|max:60',
+           'company_name'=>'nullable|string|max:100',
+           'salary'=>'required|integer',
+           'location'=>'required|string|min:3|max:100',
+           'job_type'=>'nullable|string',
+           'descrition'=>'required|string'    
         ];
     }
 }

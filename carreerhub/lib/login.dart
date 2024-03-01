@@ -166,7 +166,7 @@ class _LoginState extends State<Login> {
           CommonHelper.animatedSnackBar(
               context, data['message'], AnimatedSnackBarType.error);
         } else {
-          print("{gordon $data['id']}");
+          //print("{gordon $data['id']}");
           print(response.statusCode);
           //set the user id to the provider
           // ignore: use_build_context_synchronously
