@@ -259,7 +259,7 @@ class _JobCardState extends State<JobCard> {
                     ),
                     onPressed: () {
                       // Handle save icon click
-                      print('Bookmark Clicked');
+                      print('Bookmark Clicked');//for testing
                     },
                   ),
                 )
