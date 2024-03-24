@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:carreerhub/GetuserId.dart';
 import 'package:carreerhub/helper/commonhelper.dart';
 import 'package:carreerhub/model/loginModel.dart';
 import 'package:carreerhub/provider/userprovider.dart';
@@ -36,8 +37,7 @@ class _LoginState extends State<Login> {
         key: _loginFormKey,
         child: Center(
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: .0),
             child: Container(
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
@@ -60,13 +60,15 @@ class _LoginState extends State<Login> {
                       border: OutlineInputBorder(),
                     ),
                     validator: (String? value) {
-                      if (value!.isEmpty || value.length < 4) {
-                        return 'Invalid Email entered';
+                      if (value!.isEmpty) {
+                        return 'Email required';
+                      } else if (value.length < 4) {
+                        return 'Invalide email entered';
                       }
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 10.0),
                   TextFormField(
                       controller: passwordController,
                       obscureText: true,
@@ -96,13 +98,12 @@ class _LoginState extends State<Login> {
                         isLoading = true;
                       });
                       //add delay
-                      Future.delayed(const Duration(seconds: 1), () {
-                        loginnow();
+                      Future.delayed(const Duration(seconds: 3), () {
+                        setState(() {
+                          isLoading = false;
+                        });
                       });
-                      // loginnow();
-                      // setState(() {
-                      //   isLoading = false;
-                      // });
+                      loginnow();
                     },
                     child: isLoading == true
                         ? const CircularProgressIndicator()
@@ -160,13 +161,17 @@ class _LoginState extends State<Login> {
           String token = data['token'];
           await AuthTokenStorage.saveToken(token);
           // ignore: use_build_context_synchronously
+          int user_id = data['user_id'];
+          print(user_id);
+          await UserIdStorage.saveUserId(user_id);
+          CommonHelper.animatedSnackBar(
+              context, data['message'], AnimatedSnackBarType.success);
           Navigator.pushNamed(context, '/dashboard');
         } else if (response.statusCode == 404) {
           // ignore: use_build_context_synchronously
           CommonHelper.animatedSnackBar(
               context, data['message'], AnimatedSnackBarType.error);
         } else {
-          //print("{gordon $data['id']}");
           print(response.statusCode);
           //set the user id to the provider
           // ignore: use_build_context_synchronously

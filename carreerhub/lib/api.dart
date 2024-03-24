@@ -22,6 +22,25 @@ class ApiService {
     return json.decode(response.body);
   }
 
+  static Future<Map<String, dynamic>> PostJob(String jobtitle,
+      String companyname, String location, String salary,String job_type, String description,
+      {required String route}) async {
+    final url = Uri.parse(
+        '$baseUrl/dashboard/job/insert'); // Adjust endpoint accordingly
+    final response = await http.post(
+      url,
+      body: {
+        'jobtitle': jobtitle,
+        'companyname': companyname,
+        'salary': salary,
+        'job_type':job_type,
+        'location': location,
+        'description': description,
+      },
+    );
+    return json.decode(response.body);
+  }
+
   static Future<Map<String, dynamic>> loginUser(
       String email, String password) async {
     final url = Uri.parse('$baseUrl/login'); // Adjust endpoint accordingly

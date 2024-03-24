@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Delay the navigation to the Register screen for 2 seconds
     Timer(
       const Duration(seconds: 3),
-      () => Navigator.pushReplacementNamed(context, '/register'),
+      () => Navigator.pushReplacementNamed(context, '/login'),
     );
   }
 

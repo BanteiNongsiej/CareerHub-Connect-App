@@ -59,7 +59,7 @@ class _RegisterState extends State<Register> {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 0.0),
           child: Container(
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
@@ -77,6 +77,7 @@ class _RegisterState extends State<Register> {
                   children: [
                     TextFormField(
                       controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
                         labelText: 'Email',
                         hintText: 'Enter your email address',
@@ -92,7 +93,7 @@ class _RegisterState extends State<Register> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10.0),
                     TextFormField(
                         controller: _passwordController,
                         obscureText: true,
@@ -109,7 +110,7 @@ class _RegisterState extends State<Register> {
                           }
                           return null;
                         }),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20.0),
                     ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.blue),
@@ -125,7 +126,11 @@ class _RegisterState extends State<Register> {
                         setState(() {
                           isLoading = true;
                         });
-                        Future.delayed(const Duration(seconds: 1), () {});
+                        Future.delayed(const Duration(seconds: 3), () {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        });
                         setData();
                       },
                       child: isLoading == true

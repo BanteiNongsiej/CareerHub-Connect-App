@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->string('title');
             $table->string('company_name')->nullable();
-            $table->integer('salary');
+            $table->string('salary');
             $table->string('location');
             $table->string('job_type')->nullable();
             $table->string('description');

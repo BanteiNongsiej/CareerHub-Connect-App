@@ -44,6 +44,32 @@ class JobController extends Controller
             ],200);
         }
     }
+    public function findjob($user_id){
+        $job = Job::where('user_id',$user_id)->get();
+        if(!$job){//checking for user
+            return response()->json([
+                'status' => 404, 
+                'Message' => 'Job does not exist'
+            ], 404);
+        }
+        else{
+            return response()->json([
+                "data" => $job,//call UserResource
+            ],200);
+        }
+    }
+    public function showalljob(){
+       $job=Job::all();
+       if(!$job){
+        return response()->json([
+            'message'=>'No Jobs found'
+        ],404);
+       }else{
+        return response()->json([
+            'data'=>$job
+        ],200);
+       }
+    }
     public function delete(Job $job){
         try{
             $job->delete();

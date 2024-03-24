@@ -1,6 +1,12 @@
 //import 'dart:js';
 
+import 'package:carreerhub/add_job.dart';
+import 'package:carreerhub/chatbox.dart';
 import 'package:carreerhub/dashboard.dart';
+import 'package:carreerhub/home_page.dart';
+import 'package:carreerhub/job_post_form.dart';
+import 'package:carreerhub/notification.dart';
+import 'package:carreerhub/profile.dart';
 import 'package:carreerhub/provider/userprovider.dart';
 import 'package:carreerhub/register.dart';
 import 'package:carreerhub/splash.dart';
@@ -26,8 +32,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Job Portal App',
-      debugShowCheckedModeBanner: false, 
+      title: 'CareerHub Connect',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
         useMaterial3: true,
@@ -38,6 +44,12 @@ class MyApp extends StatelessWidget {
         '/splash': (context) => const SplashScreen(),
         '/register': (context) => const Register(),
         '/login': (context) => const Login(),
+        '/homepage': (context) => const HomePageScreen(),
+        '/addjob': (context) => AddJobScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/chatbox': (context) => const ChatBoxScreen(),
+        '/notification': (context) => const NotificationScreen(),
+        '/jobpostform': (context) => JobPostFormScreen(),
       },
     );
   }

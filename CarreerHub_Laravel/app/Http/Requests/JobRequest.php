@@ -22,12 +22,23 @@ class JobRequest extends FormRequest
     public function rules(): array
     {
         return [
-           'title'=>'required|string|max:60',
+           'title'=>'required|string|max:60|min:2',
            'company_name'=>'nullable|string|max:100',
-           'salary'=>'required|integer',
+           'salary'=>'required|string',
            'location'=>'required|string|min:3|max:100',
            'job_type'=>'nullable|string',
-           'descrition'=>'required|string'    
+           'description'=>'required|string'    
+        ];
+    }
+    public function messages(): array{
+        return [
+            'title.required'=>'Job title is required',
+            'title.max|title.min'=>'Job title should have at least 2 characters and maximum 60 characters',
+            'company_name.max'=>'Company name should not have more than 100 characters',
+            'salary.required'=>'Salary is required',
+            'location.required'=>'Location is required',
+            'location.min|location.max'=>'Location should have at least 3 to 100 characters',
+            'description'=>'Description about the job is required'
         ];
     }
 }

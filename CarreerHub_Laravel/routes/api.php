@@ -30,4 +30,8 @@ Route::controller(UserInfoController::class)->group(function(){
 Route::controller(JobController::class)->group(function(){
     Route::post('/dashboard/job/insert','insert');
     Route::get('/dashboard/job/show/{job_id}','show');
+    Route::get('/dashboard/job/findjob/{user_id}','findjob');
+    Route::get('/dashboard/job/showalljob','showalljob');
+    Route::put('dashboard/job/update/job','update');
+    Route::delete('dashboard/job/delete/job','delete');
 });
