@@ -9,10 +9,10 @@ use App\Http\Requests\JobRequest;
 
 class JobController extends Controller
 {
-    public function insert(JobRequest $request){
+    public function insert(JobRequest $request,$user_id){
         try{
             $job=new Job();
-            $job->user_id=$request->user_id;
+            $job->user_id=$user_id;
             $job->title = $request->title;
             $job->company_name = $request->company_name;
             $job->salary = $request->salary;
@@ -21,12 +21,14 @@ class JobController extends Controller
             $job->description = $request->description;
             $job->save();
             return response()->json([
-                "data"=>$job,
-                "message"=>"Record insert successfully"
-            ],201);
+                'data'=>$job,
+                'message'=>'Job posted successfully',
+                'status'=>200,
+            ],200);
         }catch(Exception $e){
             return response()->json([
-                "message"=> $e//"Record insertion failed"
+                "message"=> $e,//"Record insertion failed"
+                'status'=>404,
             ],404);
         }
     }
@@ -96,7 +98,7 @@ class JobController extends Controller
             $job->save();
             return response()->json([
                 "data"=>$job,
-                "message"=>"Record update successfully"
+                "message"=>"Job update successfully"
             ],201);
         }catch(Exception $e){
             return response()->json([

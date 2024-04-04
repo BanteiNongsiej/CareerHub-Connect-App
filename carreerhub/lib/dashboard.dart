@@ -1,9 +1,9 @@
-import 'package:carreerhub/add_job.dart';
+import 'package:carreerhub/Add%20Job/add_job.dart';
 import 'package:carreerhub/chatbox.dart';
-import 'package:carreerhub/home_page.dart';
-import 'package:carreerhub/job_post_form.dart';
+import 'package:carreerhub/Home/home_page.dart';
+import 'package:carreerhub/Add%20Job/job_post_form.dart';
 import 'package:carreerhub/notification.dart';
-import 'package:carreerhub/profile.dart';
+import 'package:carreerhub/Profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:stylish_bottom_bar/model/bar_items.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
@@ -43,14 +43,6 @@ class _DashboardState extends State<Dashboard>
               ),
         ),
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.popAndPushNamed(context, '/login');
-            },
-            icon: Icon(Icons.logout),
-          ),
-        ],
       ),
       body: TabBarView(
         controller: tabController,

@@ -1,18 +1,18 @@
 //import 'dart:js';
 
-import 'package:carreerhub/add_job.dart';
+import 'package:carreerhub/Add%20Job/add_job.dart';
 import 'package:carreerhub/chatbox.dart';
 import 'package:carreerhub/dashboard.dart';
-import 'package:carreerhub/home_page.dart';
-import 'package:carreerhub/job_post_form.dart';
+import 'package:carreerhub/Home/home_page.dart';
+import 'package:carreerhub/Add%20Job/job_post_form.dart';
 import 'package:carreerhub/notification.dart';
-import 'package:carreerhub/profile.dart';
+import 'package:carreerhub/Profile/profile.dart';
 import 'package:carreerhub/provider/userprovider.dart';
-import 'package:carreerhub/register.dart';
+import 'package:carreerhub/auth/register.dart';
 import 'package:carreerhub/splash.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:carreerhub/login.dart';
+import 'package:carreerhub/auth/login.dart';
 import 'package:carreerhub/api.dart';
 import 'package:provider/provider.dart';
 

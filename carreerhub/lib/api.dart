@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:carreerhub/GetuserId.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
   static String baseUrl = Platform.isAndroid
       ? 'http://10.0.3.2:8000/api'
       : 'http://127.0.0.1:8000/api';
-
   static Future<Map<String, dynamic>> registerUser(
       String email, String password,
       {required String route}) async {
-    final url = Uri.parse('$baseUrl/register'); // Adjust endpoint accordingly
+    final url = Uri.parse('$baseUrl/register');
     final response = await http.post(
       url,
       body: {
@@ -22,18 +22,23 @@ class ApiService {
     return json.decode(response.body);
   }
 
-  static Future<Map<String, dynamic>> PostJob(String jobtitle,
-      String companyname, String location, String salary,String job_type, String description,
+  static Future<Map<String, dynamic>> PostJob(
+      String jobtitle,
+      String companyname,
+      String location,
+      String salary,
+      String job_type,
+      String description,
       {required String route}) async {
-    final url = Uri.parse(
-        '$baseUrl/dashboard/job/insert'); // Adjust endpoint accordingly
+        int user_id = UserIdStorage.getUserId() as int;
+    final url = Uri.parse('$baseUrl/dashboard/job/insert/$user_id');
     final response = await http.post(
       url,
       body: {
         'jobtitle': jobtitle,
         'companyname': companyname,
         'salary': salary,
-        'job_type':job_type,
+        'job_type': job_type,
         'location': location,
         'description': description,
       },

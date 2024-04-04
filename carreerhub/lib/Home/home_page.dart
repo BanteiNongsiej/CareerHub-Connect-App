@@ -14,12 +14,12 @@ class HomePageScreen extends StatefulWidget {
 class _HomePageScreenState extends State<HomePageScreen> {
   List<Map<String, dynamic>> dataList = []; // List to store data
   List<Job> jobList = [];
-  bool isLoading = true;
+  bool isloading = true;
 
   @override
   void initState() {
     super.initState();
-    // Simulating loading time with a delay of 3 seconds
+    // Simulating isloading time with a delay of 3 seconds
     Future.delayed(Duration(seconds: 2), () {
       fetchData();
     });
@@ -45,7 +45,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   description: data['description'] ?? '',
                 ))
             .toList();
-        isLoading = false;
+        isloading = false;
       });
     } else {
       throw Exception('Failed to load jobs');
@@ -55,30 +55,27 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
-          ? Skeletonizer(
-              enabled: isLoading,
-              child: ListView.builder(
-                itemCount: jobList.length, // Placeholder for 5 items
+      backgroundColor: Color.fromARGB(255, 248, 246, 242),
+      body: Skeletonizer(
+        enabled:isloading,
+        child: isloading
+            ? ListView.builder(
+                itemCount: 6, // Placeholder for 5 items
                 itemBuilder: (context, index) {
-                  return JobCard(
-                      job: jobList[index]); // Placeholder widget for job card
+                  return JobCardPlaceholder(); // Placeholder widget for job card
                 },
-              ),
-            )
-          : jobList.isEmpty
-              ? Center(
-                  child: Text('No jobs available'),
-                )
-              : Skeletonizer(
-                  enabled: isLoading,
-                  child: ListView.builder(
+              )
+            : jobList.isEmpty
+                ? Center(
+                    child: Text('No jobs available'),
+                  )
+                : ListView.builder(
                     itemCount: jobList.length,
                     itemBuilder: (context, index) {
                       return JobCard(job: jobList[index]);
                     },
                   ),
-                ),
+      ),
     );
   }
 }
@@ -116,6 +113,8 @@ class _JobCardState extends State<JobCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Color.fromARGB(255, 240, 245, 248),
+      shadowColor: Color.fromARGB(255, 215, 50, 9),
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(20)),
@@ -132,7 +131,10 @@ class _JobCardState extends State<JobCard> {
                 children: [
                   Text(
                     widget.job.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18
+                      ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -159,7 +161,10 @@ class _JobCardState extends State<JobCard> {
                       ),
                     ],
                   ),
-                  Text(widget.job.description),
+                  Text( 
+                    widget.job.description,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
               IconButton(
@@ -184,3 +189,43 @@ class _JobCardState extends State<JobCard> {
     );
   }
 }
+class JobCardPlaceholder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              height: 20.0,
+              color: Colors.grey[300], // Placeholder color
+            ),
+            SizedBox(height: 8.0),
+            Container(
+              width: double.infinity,
+              height: 10.0,
+              color: Colors.grey[300], // Placeholder color
+            ),
+            SizedBox(height: 8.0),
+            Container(
+              width: double.infinity,
+              height: 10.0,
+              color: Colors.grey[300], // Placeholder color
+            ),
+            SizedBox(height: 8.0),
+            Container(
+              width: double.infinity,
+              height: 10.0,
+              color: Colors.grey[300], // Placeholder color
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

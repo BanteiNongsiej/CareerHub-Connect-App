@@ -20,7 +20,7 @@ class _RegisterState extends State<Register> {
   String email = "";
   String password = "";
 
-  void setData() async {
+  void register() async {
     if (_registerFormKey.currentState!.validate()) {
       final email = _emailController.text;
       final password = _passwordController.text;
@@ -131,7 +131,7 @@ class _RegisterState extends State<Register> {
                             isLoading = false;
                           });
                         });
-                        setData();
+                        register();
                       },
                       child: isLoading == true
                           ? const CircularProgressIndicator()

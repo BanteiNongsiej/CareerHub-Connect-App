@@ -28,7 +28,7 @@ Route::controller(UserInfoController::class)->group(function(){
     Route::get('/dashboard/{id}','UserDetails');
 });
 Route::controller(JobController::class)->group(function(){
-    Route::post('/dashboard/job/insert','insert');
+    Route::post('/dashboard/job/insert/{user_id}','insert');
     Route::get('/dashboard/job/show/{job_id}','show');
     Route::get('/dashboard/job/findjob/{user_id}','findjob');
     Route::get('/dashboard/job/showalljob','showalljob');

@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:carreerhub/helper/commonhelper.dart';
 import 'package:http/http.dart' as http;
 import 'package:carreerhub/model/jobModel.dart';
 import 'package:flutter/material.dart';
+import 'package:carreerhub/GetuserId.dart';
 
 class JobPostFormScreen extends StatefulWidget {
   const JobPostFormScreen({super.key});
@@ -13,13 +17,20 @@ class JobPostFormScreen extends StatefulWidget {
 class _JobPostScreenFormState extends State<JobPostFormScreen> {
   final formKey = GlobalKey<FormState>();
   bool isLoading = false;
-  // JobModel job = JobModel(
-  //     id: id,
-  //     title: title,
-  //     salary: salary,
-  //     location: location,
-  //     job_type: job_type,
-  //     description: description);
+  final _titleController = TextEditingController();
+  final _companynameController = TextEditingController();
+  final _salarytitleController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _jobtypeController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
+  String title = "";
+  String company_name = "";
+  String salary = "";
+  String location = "";
+  String job_type = "";
+  String description = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +46,7 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
               //fontFamily:AutofillHints.countryName
               ),
         ),
-        automaticallyImplyLeading: false,
+        //automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -149,9 +160,10 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
                             });
                             Future.delayed(
                               const Duration(seconds: 3),
-                              () {},
+                              () {
+                                post();
+                              },
                             );
-                            post();
                           },
                           child: isLoading == true
                               ? const CircularProgressIndicator()
@@ -176,13 +188,44 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
   }
 
   void post() async {
+    int user_id = UserIdStorage.getUserId() as int;
     if (formKey.currentState!.validate()) {
+      final title = _titleController.text;
+      final company_name = _companynameController.text;
+      final salary = _salarytitleController.text;
+      final location = _locationController.text;
+      final job_type = _jobtypeController.text;
+      final description = _descriptionController.text;
       formKey.currentState!.save();
       String url = '';
       if (Platform.isAndroid) {
-        url = 'http://10.0.3.2:8000/api/dashboard/job/insert';
+        url = 'http://10.0.3.2:8000/api/dashboard/job/insert/$user_id';
       } else {
-        url = 'http://localhost:8000/api/dashboard/job/insert';
+        url = 'http://localhost:8000/api/dashboard/job/insert/$user_id';
+      }
+      try {
+        var response = await http.post(Uri.parse(url), body: {
+          'title': title,
+          'company_name': company_name,
+          'salary': salary,
+          'location': location,
+          'job_type': job_type,
+          'description': description
+        }, headers: {
+          'Accept': 'application/json',
+          // 'Content-Type': 'application/json'
+        });
+        var data = jsonDecode(response.body);
+        if ((response.statusCode == 200)) {
+          CommonHelper.animatedSnackBar(
+              context, data['message'], AnimatedSnackBarType.success);
+              Navigator.pushNamed(context, '/dashboard');
+        }else if (response.statusCode == 404) {
+          CommonHelper.animatedSnackBar(
+              context, data['message'], AnimatedSnackBarType.error);
+        } 
+      } catch (e) {
+        print('$e');
       }
     }
   }
