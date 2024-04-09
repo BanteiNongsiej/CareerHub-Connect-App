@@ -6,6 +6,7 @@ use Exception;
 use App\Models\Job;
 use Illuminate\Http\Request;
 use App\Http\Requests\JobRequest;
+use Illuminate\Routing\Controller;
 
 class JobController extends Controller
 {

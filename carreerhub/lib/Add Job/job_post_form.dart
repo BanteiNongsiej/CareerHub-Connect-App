@@ -17,9 +17,10 @@ class JobPostFormScreen extends StatefulWidget {
 class _JobPostScreenFormState extends State<JobPostFormScreen> {
   final formKey = GlobalKey<FormState>();
   bool isLoading = false;
+  int user_id = 0;
   final _titleController = TextEditingController();
   final _companynameController = TextEditingController();
-  final _salarytitleController = TextEditingController();
+  final _salaryController = TextEditingController();
   final _locationController = TextEditingController();
   final _jobtypeController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -30,6 +31,10 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
   String location = "";
   String job_type = "";
   String description = "";
+
+  Future getUserId() async {
+    user_id = await UserIdStorage.getUserId() as int;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +55,7 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
       ),
       body: SingleChildScrollView(
         child: Form(
+          key: formKey,
           child: Center(
             child: Padding(
               padding: EdgeInsets.all(20),
@@ -61,13 +67,14 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
                 child: Column(
                   children: [
                     TextFormField(
+                      controller: _titleController,
                       keyboardType: TextInputType.name,
                       decoration: const InputDecoration(
                         labelText: 'Job Title',
                         border: OutlineInputBorder(),
                       ),
                       validator: (String? value) {
-                        if (value!.isEmpty || value == null) {
+                        if (value!.isEmpty) {
                           return 'Job title is required';
                         }
                         return null;
@@ -77,6 +84,7 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
                       height: 15,
                     ),
                     TextFormField(
+                      controller: _companynameController,
                       keyboardType: TextInputType.name,
                       decoration: const InputDecoration(
                         labelText: 'Company Name',
@@ -87,13 +95,14 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
                       height: 15,
                     ),
                     TextFormField(
+                      controller: _salaryController,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         labelText: 'Salary',
                         border: OutlineInputBorder(),
                       ),
                       validator: (String? value) {
-                        if (value!.isEmpty || value == null) {
+                        if (value!.isEmpty) {
                           return 'This field is required';
                         }
                         return null;
@@ -103,13 +112,14 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
                       height: 15,
                     ),
                     TextFormField(
+                      controller: _locationController,
                       keyboardType: TextInputType.name,
                       decoration: const InputDecoration(
                         labelText: 'Location',
                         border: OutlineInputBorder(),
                       ),
                       validator: (String? value) {
-                        if (value!.isEmpty || value == null) {
+                        if (value!.isEmpty) {
                           return 'This field is required';
                         }
                         return null;
@@ -119,13 +129,14 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
                       height: 15,
                     ),
                     TextFormField(
+                      controller: _jobtypeController,
                       keyboardType: TextInputType.name,
                       decoration: const InputDecoration(
                         labelText: 'Job Type',
                         border: OutlineInputBorder(),
                       ),
                       validator: (String? value) {
-                        if (value!.isEmpty || value == null) {
+                        if (value!.isEmpty) {
                           return 'This field is required';
                         }
                         return null;
@@ -135,13 +146,14 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
                       height: 15,
                     ),
                     TextFormField(
+                      controller: _descriptionController,
                       keyboardType: TextInputType.name,
                       decoration: const InputDecoration(
                         labelText: 'Description',
                         border: OutlineInputBorder(),
                       ),
                       validator: (String? value) {
-                        if (value!.isEmpty || value == null) {
+                        if (value!.isEmpty) {
                           return 'This field is required';
                         }
                         return null;
@@ -188,11 +200,11 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
   }
 
   void post() async {
-    int user_id = UserIdStorage.getUserId() as int;
+    await getUserId();
     if (formKey.currentState!.validate()) {
       final title = _titleController.text;
       final company_name = _companynameController.text;
-      final salary = _salarytitleController.text;
+      final salary = _salaryController.text;
       final location = _locationController.text;
       final job_type = _jobtypeController.text;
       final description = _descriptionController.text;
@@ -216,14 +228,15 @@ class _JobPostScreenFormState extends State<JobPostFormScreen> {
           // 'Content-Type': 'application/json'
         });
         var data = jsonDecode(response.body);
+        print(response);
         if ((response.statusCode == 200)) {
           CommonHelper.animatedSnackBar(
               context, data['message'], AnimatedSnackBarType.success);
-              Navigator.pushNamed(context, '/dashboard');
-        }else if (response.statusCode == 404) {
+          Navigator.pushNamed(context, '/dashboard');
+        } else if (response.statusCode == 404) {
           CommonHelper.animatedSnackBar(
               context, data['message'], AnimatedSnackBarType.error);
-        } 
+        }
       } catch (e) {
         print('$e');
       }
