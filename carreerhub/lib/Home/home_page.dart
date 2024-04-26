@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class HomePageScreen extends StatefulWidget {
@@ -14,12 +15,14 @@ class HomePageScreen extends StatefulWidget {
 class _HomePageScreenState extends State<HomePageScreen> {
   List<Map<String, dynamic>> dataList = []; // List to store data
   List<Job> jobList = [];
+  List<Job> filteredJobList = []; // List to store filtered data
   bool isloading = true;
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Simulating isloading time with a delay of 3 seconds
+    // Simulating isLoading time with a delay of 3 seconds
     Future.delayed(Duration(seconds: 2), () {
       fetchData();
     });
@@ -45,6 +48,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   description: data['description'] ?? '',
                 ))
             .toList();
+        filteredJobList =
+            List.from(jobList); // Initialize filteredJobList with jobList
         isloading = false;
       });
     } else {
@@ -52,12 +57,63 @@ class _HomePageScreenState extends State<HomePageScreen> {
     }
   }
 
+  void filterJobs(String keyword) {
+    setState(() {
+      if (keyword.isEmpty) {
+        // If keyword is empty, display all jobs
+        filteredJobList = List.from(jobList);
+      } else {
+        // Filter jobs based on keyword
+        filteredJobList = jobList
+            .where((job) =>
+                job.title.toLowerCase().contains(keyword.toLowerCase()) ||
+                job.company_name
+                    .toLowerCase()
+                    .contains(keyword.toLowerCase()) ||
+                job.location.toLowerCase().contains(keyword.toLowerCase()) ||
+                job.job_type.toLowerCase().contains(keyword.toLowerCase()) ||
+                job.salary.toLowerCase().contains(keyword.toLowerCase()) ||
+                job.description.toLowerCase().contains(keyword.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        title: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.0), // Add padding here
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: 'Search...',
+              border: OutlineInputBorder(
+                borderRadius:
+                    BorderRadius.circular(10.0), // Set border radius here
+                borderSide: BorderSide.none, // Hide the border
+              ),
+              hintStyle: TextStyle(color: Colors.grey),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  filterJobs(searchController
+                      .text); // Call filterJobs function on search button press
+                },
+              ),
+            ),
+            onChanged: (value) {
+              filterJobs(value); // Call filterJobs function on text change
+            },
+          ),
+        ),
+      ),
       backgroundColor: Color.fromARGB(255, 248, 246, 242),
       body: Skeletonizer(
-        enabled:isloading,
+        enabled: isloading,
         child: isloading
             ? ListView.builder(
                 itemCount: 6, // Placeholder for 5 items
@@ -65,14 +121,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   return JobCardPlaceholder(); // Placeholder widget for job card
                 },
               )
-            : jobList.isEmpty
+            : filteredJobList.isEmpty
                 ? Center(
                     child: Text('No jobs available'),
                   )
                 : ListView.builder(
-                    itemCount: jobList.length,
+                    itemCount: filteredJobList.length,
                     itemBuilder: (context, index) {
-                      return JobCard(job: jobList[index]);
+                      return JobCard(job: filteredJobList[index]);
                     },
                   ),
       ),
@@ -96,6 +152,28 @@ class Job {
     required this.salary,
     required this.description,
   });
+
+  factory Job.fromJson(Map<String, dynamic> json) {
+    return Job(
+      title: json['title'] ?? '',
+      company_name: json['company_name'] ?? '',
+      location: json['location'] ?? '',
+      job_type: json['job_type'] ?? '',
+      salary: json['salary'] ?? '',
+      description: json['description'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'company_name': company_name,
+      'location': location,
+      'job_type': job_type,
+      'salary': salary,
+      'description': description,
+    };
+  }
 }
 
 class JobCard extends StatefulWidget {
@@ -109,6 +187,10 @@ class JobCard extends StatefulWidget {
 
 class _JobCardState extends State<JobCard> {
   bool isBooked = false;
+
+  String generateJobKey(Job job) {
+    return "bookmarked_job_${job.title}_${job.company_name}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,12 +215,12 @@ class _JobCardState extends State<JobCard> {
                     widget.job.title,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18
-                      ),
+                      fontSize: 18,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text('Company Name: ${widget.job.company_name}'),
+                  Text(widget.job.company_name),
                   Row(
                     children: [
                       const FaIcon(FontAwesomeIcons.locationDot, size: 14.0),
@@ -161,7 +243,7 @@ class _JobCardState extends State<JobCard> {
                       ),
                     ],
                   ),
-                  Text( 
+                  Text(
                     widget.job.description,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -169,9 +251,7 @@ class _JobCardState extends State<JobCard> {
               ),
               IconButton(
                 onPressed: () {
-                  setState(() {
-                    isBooked = !isBooked;
-                  });
+                  checkBookmark();
                 },
                 icon: FaIcon(
                   isBooked
@@ -188,8 +268,40 @@ class _JobCardState extends State<JobCard> {
       ),
     );
   }
+
+  void checkBookmark() {
+    setState(() {
+      isBooked = !isBooked;
+      if (isBooked) {
+        Bookmark(widget.job);
+      } else {
+        unBookmark(widget.job);
+      }
+    });
+  }
+
+  Future<void> Bookmark(Job job) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String encodedJob = jsonEncode(job.toJson());
+    // Use a key that combines a prefix and job title for better organization
+    final String key = generateJobKey(job);
+    await prefs.setString(key, encodedJob);
+    //print(Bookmark(job.title));
+  }
+
+  Future<void> unBookmark(Job job) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String key = generateJobKey(job);
+    await prefs.remove(key);
+  }
 }
-class JobCardPlaceholder extends StatelessWidget {
+
+class JobCardPlaceholder extends StatefulWidget {
+  @override
+  State<JobCardPlaceholder> createState() => _JobCardPlaceholderState();
+}
+
+class _JobCardPlaceholderState extends State<JobCardPlaceholder> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -228,4 +340,3 @@ class JobCardPlaceholder extends StatelessWidget {
     );
   }
 }
-

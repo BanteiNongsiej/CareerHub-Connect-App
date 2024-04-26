@@ -133,8 +133,15 @@ class _RegisterState extends State<Register> {
                         });
                         register();
                       },
-                      child: isLoading == true
-                          ? const CircularProgressIndicator()
+                      child: isLoading
+                          ? SizedBox(
+                            width:25,
+                            height:25,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 4,
+                              color: Colors.black,
+                          )
+                          )
                           : const Text(
                               'Register',
                               style:

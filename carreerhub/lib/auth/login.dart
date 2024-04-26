@@ -10,6 +10,7 @@ import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -105,29 +106,50 @@ class _LoginState extends State<Login> {
                       });
                       loginnow();
                     },
-                    child: isLoading == true
-                        ? const CircularProgressIndicator()
+                    child: isLoading
+                        ? SizedBox(
+                            width: 25,
+                            height: 25,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 4,
+                              color: Colors.black,
+                            ))
                         : const Text(
                             'Login',
                             style: TextStyle(fontSize: 18, color: Colors.black),
                           ),
                   ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        text: 'If not register? Click here to register',
+                  const SizedBox(height: 5),
+                  Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      child: Text(
+                        'If not registered? Click here to register',
                         style: const TextStyle(
                           color: Colors.blue,
                           decoration: TextDecoration.underline,
                         ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.pushNamed(context, '/register');
-                          },
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 0), // Add some space between buttons
+                    TextButton(
+                      onPressed: () {
+                        // Handle forgot password action
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 ],
               ),
             ),
@@ -160,15 +182,13 @@ class _LoginState extends State<Login> {
         if ((response.statusCode) == 200) {
           String token = data['token'];
           await AuthTokenStorage.saveToken(token);
-          // ignore: use_build_context_synchronously
           int user_id = data['user_id'];
-          print(user_id);
+          print(token);
           await UserIdStorage.saveUserId(user_id);
           CommonHelper.animatedSnackBar(
               context, data['message'], AnimatedSnackBarType.success);
           Navigator.pushNamed(context, '/dashboard');
         } else if (response.statusCode == 404) {
-          // ignore: use_build_context_synchronously
           CommonHelper.animatedSnackBar(
               context, data['message'], AnimatedSnackBarType.error);
         } else {

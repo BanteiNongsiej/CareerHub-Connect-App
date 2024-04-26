@@ -1,6 +1,7 @@
 //import 'dart:js';
 
 import 'package:carreerhub/Add%20Job/add_job.dart';
+import 'package:carreerhub/Home/bookmarkjob.dart';
 import 'package:carreerhub/chatbox.dart';
 import 'package:carreerhub/dashboard.dart';
 import 'package:carreerhub/Home/home_page.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/chatbox': (context) => const ChatBoxScreen(),
         '/notification': (context) => const NotificationScreen(),
         '/jobpostform': (context) => JobPostFormScreen(),
+        '/bookmarkjob':(context)=>JobBookmarkScreen(),
       },
     );
   }
