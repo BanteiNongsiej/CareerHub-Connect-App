@@ -28,8 +28,13 @@ class UserRequest extends FormRequest
             'first_name' => 'required|string|max:255|min:2',
             'middle_name' => 'nullable|string|max:255|min:1',
             'last_name' => 'required|string|max:255|min:2',
-            'address' => 'required|string|max:2|max:255',
             'mobile_number' => 'required|string|size:10',
+            'country' => 'required', 'string', 'max:255',
+            'state' => 'required', 'string', 'max:255',
+            'city' => 'required', 'string', 'max:255',
+            'locality' => 'required', 'string', 'max:255',
+            'district' => 'required', 'string', 'max:255',
+            'pincode' => 'required', 'string', 'max:255',
         ];
     }
     public function messages():array
@@ -51,6 +56,12 @@ class UserRequest extends FormRequest
             'address.min|address.max' => 'Address must be between 2 and 255 characters long',
             'mobile_number.required' => 'Mobile number is required',
             'mobile_number.size' => 'Mobile number must be exactly 10 characters long',
+            'country.required' => 'Country is required',
+            'state.required' => 'State is required',
+            'city.required' => 'City is required',
+            'locality.required' => 'Locality is required',
+            'district.required' => 'District is required',
+            'pincode.required' => 'Pincode is required',
         ];
     }
 }

@@ -62,7 +62,55 @@ class _AddJobScreenState extends State<AddJobScreen> {
             )
           : jobList.isEmpty
               ? Center(
-                  child: Text('No jobs posted'),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 60),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Let's hire your next great candidate.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 35.0,
+                          ),
+                        ),
+                        Text(
+                          "Fast.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 35.0,
+                          ),
+                        ),
+                        SizedBox(height: 10.0),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(Color.fromARGB(255, 34, 89, 134)),
+                              alignment: Alignment.center,
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/jobpostform');
+                            },
+                            child: Text("Post a free job*",
+                              style: TextStyle(color: Colors.white, fontSize: 18),
+                              ),
+                          ),
+                        ),
+                        Image.asset(
+                          'images/working.png',
+                          width: 500,
+                          height: 350,
+                        ),
+                      ],
+                    ),
+                  ),
                 )
               : ListView.builder(
                   itemCount: jobList.length,

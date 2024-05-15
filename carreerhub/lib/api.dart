@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:carreerhub/GetuserId.dart';
 import 'package:http/http.dart' as http;
 
+int user_id = UserIdStorage.getUserId() as int;
+
 class ApiService {
   static String baseUrl = Platform.isAndroid
       ? 'http://10.0.3.2:8000/api'
@@ -30,7 +32,7 @@ class ApiService {
       String job_type,
       String description,
       {required String route}) async {
-        int user_id = UserIdStorage.getUserId() as int;
+        
     final url = Uri.parse('$baseUrl/dashboard/job/insert/$user_id');
     final response = await http.post(
       url,
@@ -58,5 +60,15 @@ class ApiService {
     );
 
     return json.decode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> getUserDetail(int userId) async {
+    final response = await http.get(Uri.parse('$baseUrl/dashboard/user/$userId')); // Send a GET request to the API endpoint with the provided user ID
+
+    if (response.statusCode == 200) { // Check if the response status code is 200 (OK)
+      return jsonDecode(response.body); // If successful, return the JSON response
+    } else {
+      throw Exception('Failed to load user detail'); // If unsuccessful, throw an exception with an error message
+    }
   }
 }

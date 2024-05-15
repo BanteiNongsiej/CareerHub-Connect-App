@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(UserRequest $request) {
+    public function register(Request $request) {
         try {
             $existingUser = User::where('email', $request->email)->first();
             if ($existingUser) {

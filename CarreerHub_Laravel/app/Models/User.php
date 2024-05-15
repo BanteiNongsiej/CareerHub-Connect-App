@@ -26,8 +26,15 @@ class User extends Authenticatable
         'first_name',
         'middle_name',
         'last_name',
-        'address',
         'mobile_number',
+        'country',
+        'state',
+        'city',
+        'locality',
+        'district',
+        'pincode',
+        'dob',
+        'gender'
     ];
 
     /**

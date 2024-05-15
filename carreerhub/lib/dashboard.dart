@@ -118,7 +118,6 @@ class _DashboardState extends State<Dashboard>
         controller: tabController,
         children: [
           const HomePageScreen(),
-          const ChatBoxScreen(),
           AddJobScreen(),
           NotificationScreen(),
           const ProfileScreen(),
@@ -150,14 +149,6 @@ class _DashboardState extends State<Dashboard>
             title: const Text('Home'),
             //badge: const Text('9+'),
             //showBadge: true,
-          ),
-          BottomBarItem(
-            icon: const Icon(Icons.chat_bubble_outline),
-            selectedIcon: const Icon(Icons.chat_bubble),
-            selectedColor: Colors.black,
-            // unSelectedColor: Cblack,
-            backgroundColor: Colors.black,
-            title: const Text('Chat'),
           ),
           BottomBarItem(
               icon: const Icon(

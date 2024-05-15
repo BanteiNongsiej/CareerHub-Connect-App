@@ -1,3 +1,5 @@
+import 'package:carreerhub/GetuserId.dart';
+import 'package:carreerhub/api.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -7,7 +9,30 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
+late int userId; // Declare userId as late, we'll initialize it in initState
+late String userEmail = '';
+late String username = '';
+late String address = '';
+late String mobile_number = '';
+
 class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    getUserdetails();
+    super.initState();
+  }
+
+  getUserdetails() async {
+    userId = await UserIdStorage.getUserId() as int;
+
+    final userData = await ApiService.getUserDetail(userId);
+    userEmail = await userData['email'] ?? '';
+    username = await userData['name'] ?? '';
+    address = await userData['address'] ?? '';
+    mobile_number = await userData['mobile_number'] ?? '';
+    print(userData);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +44,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: Colors.grey[300],
             child: Stack(
               children: [
-                Center(
+                Positioned(
+                  top:0,
+                  left:0,
                   child: CircleAvatar(
                     radius: 80,
                     backgroundImage: AssetImage('images/no_profile.jpg'),
@@ -51,12 +78,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           SizedBox(height: 20),
           Text(
-            'Name: John Doe',
+            'Name: $username',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18),
           ),
           Text(
-            'Email: johndoe@example.com',
+            'Email: $userEmail',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18),
+          ),
+          Text(
+            'Address: $address',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18),
+          ),
+          Text(
+            'Phone: $mobile_number',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18),
           ),

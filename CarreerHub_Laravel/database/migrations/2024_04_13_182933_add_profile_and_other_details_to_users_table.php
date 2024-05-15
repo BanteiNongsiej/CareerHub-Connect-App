@@ -16,8 +16,7 @@ return new class extends Migration
             $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
             $table->string('last_name')->nullable();
-            $table->string('address')->nullable();
-            $table->string('phone_number')->nullable();
+            $table->string('mobile_number')->nullable();
         });
     }
 
@@ -31,8 +30,7 @@ return new class extends Migration
             $table->dropColumn('first_name');
             $table->dropColumn('middle_name');
             $table->dropColumn('last_name');
-            $table->dropColumn('address');
-            $table->dropColumn('phone_number');
+            $table->dropColumn('mobile_number');
         });
     }
 };
