@@ -10,16 +10,25 @@ use Illuminate\Routing\Controller;
 
 class JobController extends Controller
 {
-    public function insert(JobRequest $request,$user_id){
+    public function insert(Request $request,$user_id){
         try{
             $job=new Job();
             $job->user_id=$user_id;
             $job->title = $request->title;
-            $job->company_name = $request->company_name;
-            $job->salary = $request->salary;
-            $job->location = $request->location;
-            $job->job_type = $request->job_type;
-            $job->description = $request->description;
+            $job->name = $request->name;
+            $job->street = $request->street;
+            $job->city = $request->city;
+            $job->state = $request->state;
+            $job->country= $request->country;
+            $job->min_salary= $request->min_salary;
+            $job->max_salary= $request->max_salary;
+            $job->job_type= $request->job_type;
+            $job->shift_type= $request->shift_type;
+            $job->no_people= $request->no_people;
+            $job->experience_req= $request->experience_req;
+            $job->qualification_req= $request->qualification_req;
+            $job->skills= $request->skills;
+            $job->description= $request->description;
             $job->save();
             return response()->json([
                 'data'=>$job,
@@ -35,6 +44,7 @@ class JobController extends Controller
     }
     public function show($job_id){
         $job = Job::find($job_id);//select * from users where id
+        $fullAddress = $this->getAddress($job);
         if(!$job){//checking for user
             return response()->json([
                 'status' => 404, 
@@ -43,12 +53,33 @@ class JobController extends Controller
         }
         else{
             return response()->json([
-                "data" => $job,//call UserResource
+                "data" => [
+                    'id' => $job->id,
+                    'user_id' => $job->user_id,
+                    'title' => $job->title,
+                    'name' => $job->name,
+                    'address' => $fullAddress,
+                    'min_salary' => $job->min_salary,
+                    'max_salary' => $job->max_salary,
+                    'job_type' => $job->job_type,
+                    'shift_type' => $job->shift_type,
+                    'no_people' => $job->no_people,
+                    'experience_req' => $job->experience_req,
+                    'qualification_req' => $job->qualification_req,
+                    'skills' => $job->skills,
+                    'description' => $job->description
+                ],//call UserResource
             ],200);
         }
     }
+    public function getAddress($job) {
+        $addressParts = [$job->street, $job->city, $job->pincode,$job->city,$job->state, $job->country ];
+        return implode(', ', array_filter($addressParts));
+    }
+    
     public function findjob($user_id){
         $job = Job::where('user_id',$user_id)->get();
+        // $fullAddress = $this->getAddress($job);
         if(!$job){//checking for user
             return response()->json([
                 'status' => 404, 
@@ -56,22 +87,59 @@ class JobController extends Controller
             ], 404);
         }
         else{
+            $jobsData = $job->map(function ($job) {
+                return [
+                    'id' => $job->id,
+                    'user_id' => $job->user_id,
+                    'title' => $job->title,
+                    'name' => $job->name,
+                    'address' => $this->getAddress($job),
+                    'min_salary' => $job->min_salary,
+                    'max_salary' => $job->max_salary,
+                    'job_type' => $job->job_type,
+                    'shift_type' => $job->shift_type,
+                    'no_people' => $job->no_people,
+                    'experience_req' => $job->experience_req,
+                    'qualification_req' => $job->qualification_req,
+                    'skills' => $job->skills,
+                    'description' => $job->description
+                ];
+            });
             return response()->json([
-                "data" => $job,//call UserResource
-            ],200);
+                'data' => $jobsData
+            ], 200);
         }
     }
-    public function showalljob(){
-       $job=Job::all();
-       if(!$job){
-        return response()->json([
-            'message'=>'No Jobs found'
-        ],404);
-       }else{
-        return response()->json([
-            'data'=>$job
-        ],200);
-       }
+    public function showalljob() {
+        $jobs = Job::all();
+    
+        if ($jobs->isEmpty()) {
+            return response()->json([
+                'message' => 'No Jobs found'
+            ], 404);
+        } else {
+            $jobsData = $jobs->map(function ($job) {
+                return [
+                    'id' => $job->id,
+                    'user_id' => $job->user_id,
+                    'title' => $job->title,
+                    'name' => $job->name,
+                    'address' => $this->getAddress($job),
+                    'min_salary' => $job->min_salary,
+                    'max_salary' => $job->max_salary,
+                    'job_type' => $job->job_type,
+                    'shift_type' => $job->shift_type,
+                    'no_people' => $job->no_people,
+                    'experience_req' => $job->experience_req,
+                    'qualification_req' => $job->qualification_req,
+                    'skills' => $job->skills,
+                    'description' => $job->description
+                ];
+            });
+            return response()->json([
+                'data' => $jobsData
+            ], 200);
+        }
     }
     public function delete(Job $job){
         try{

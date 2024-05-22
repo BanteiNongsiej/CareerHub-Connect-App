@@ -27,7 +27,7 @@ class _DashboardState extends State<Dashboard>
   @override
   void initState() {
     tabController =
-        TabController(length: 5, vsync: this, initialIndex: _currentIndex);
+        TabController(length: 4, vsync: this, initialIndex: _currentIndex);
     super.initState();
   }
 

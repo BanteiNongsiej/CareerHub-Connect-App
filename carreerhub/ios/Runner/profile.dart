@@ -118,19 +118,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Positioned(
-                  top: 70,
-                  right: 15,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.edit, color: Colors.black),
-                      onPressed: () {
+                  top: 0,
+                  right: 0,
+                  child: PopupMenuButton(
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        child: Text("Edit Profile"),
+                        value: "edit_profile",
+                      ),
+                    ],
+                    onSelected: (value) {
+                      if (value == "edit_profile") {
                         // Add your edit profile functionality here
-                      },
-                    ),
+                      }
+                    },
+                    icon: Icon(Icons.more_vert),
                   ),
                 ),
               ],

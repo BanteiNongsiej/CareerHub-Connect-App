@@ -39,10 +39,10 @@ class _AddJobScreenState extends State<AddJobScreen> {
         jobList = dataList
             .map((data) => Job(
                   title: data['title'] ?? '',
-                  company_name: data['company_name'] ?? '',
-                  location: data['location'] ?? '',
+                  name: data['name'] ?? '',
+                  address: data['address'] ?? '',
                   job_type: data['job_type'] ?? '',
-                  salary: data['salary'] ?? '',
+                  min_salary: data['min_salary'] ?? '',
                   description: data['description'] ?? '',
                 ))
             .toList();
@@ -96,7 +96,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.pushNamed(context, '/jobpostform');
+                              Navigator.pushNamed(context, '/jobpostbasic');
                             },
                             child: Text("Post a free job*",
                               style: TextStyle(color: Colors.white, fontSize: 18),
@@ -120,7 +120,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/jobpostform');
+          Navigator.pushNamed(context, '/jobpostbasic');
         },
         child: Icon(Icons.add),
       ),
@@ -135,18 +135,18 @@ class _AddJobScreenState extends State<AddJobScreen> {
 
 class Job {
   final String title;
-  final String company_name;
-  final String location;
+  final String name;
+  final String address;
   final String job_type;
-  final String salary;
+  final String min_salary;
   final String description;
 
   Job({
     required this.title,
-    required this.company_name,
-    required this.location,
+    required this.name,
+    required this.address,
     required this.job_type,
-    required this.salary,
+    required this.min_salary,
     required this.description,
   });
 }
@@ -186,12 +186,16 @@ class _JobCardState extends State<JobCard> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text('Company Name: ${widget.job.company_name}'),
+                  Text('Company Name: ${widget.job.name}'),
                   Row(
                     children: [
                       const FaIcon(FontAwesomeIcons.locationDot, size: 14.0),
                       const SizedBox(width: 4.0),
-                      Text(widget.job.location),
+                      Flexible(
+                        child: Text(widget.job.address,
+                          overflow:TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                   Row(
@@ -205,11 +209,11 @@ class _JobCardState extends State<JobCard> {
                       Container(
                         color: const Color.fromARGB(255, 227, 225, 216),
                         padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Text('\u{20B9}${widget.job.salary}'),
+                        child: Text('\u{20B9}${widget.job.min_salary}'),
                       ),
                     ],
                   ),
-                  Text(widget.job.description),
+                  Text(widget.job.description,overflow: TextOverflow.ellipsis,),
                 ],
               ),
               IconButton(

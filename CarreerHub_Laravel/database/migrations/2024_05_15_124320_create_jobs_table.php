@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('jobs', function (Blueprint $table) {
+        Schema::create('jobs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users');
+            $table->string('title');
             $table->string('name')->nullable();
             $table->string('street')->nullable();
             $table->string('city');
@@ -24,8 +27,9 @@ return new class extends Migration
             $table->string('no_people');
             $table->string('experience_req')->nullable();
             $table->string('qualification_req')->nullable();
-            $table->foreignId('skills_id')->constrained('skills');
+            $table->json('skills')->nullable();
             $table->string('description');
+            $table->timestamps();
         });
     }
 
@@ -34,21 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('jobs', function (Blueprint $table) {
-            $table->dropColumn('name');
-            $table->dropColumn('street');
-            $table->dropColumn('city');
-            $table->dropColumn('state');
-            $table->dropColumn('country');
-            $table->dropColumn('min_salary');
-            $table->dropColumn('max_salary');
-            $table->dropColumn('job_type');
-            $table->dropColumn('shift_type');
-            $table->dropColumn('no_people');
-            $table->dropColumn('experience_req');
-            $table->dropColumn('qualification_req');
-            $table->dropColumn('skills_id');
-            $table->dropColumn('description');
-        });
+        Schema::dropIfExists('jobs');
     }
 };

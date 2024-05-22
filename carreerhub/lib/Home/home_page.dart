@@ -41,10 +41,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
         jobList = dataList
             .map((data) => Job(
                   title: data['title'] ?? '',
-                  company_name: data['company_name'] ?? '',
-                  location: data['location'] ?? '',
+                  name: data['name'] ?? '',
+                  address: data['address'] ?? '',
                   job_type: data['job_type'] ?? '',
-                  salary: data['salary'] ?? '',
+                  min_salary: data['min_salary'] ?? '',
                   description: data['description'] ?? '',
                 ))
             .toList();
@@ -67,12 +67,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
         filteredJobList = jobList
             .where((job) =>
                 job.title.toLowerCase().contains(keyword.toLowerCase()) ||
-                job.company_name
+                job.name
                     .toLowerCase()
                     .contains(keyword.toLowerCase()) ||
-                job.location.toLowerCase().contains(keyword.toLowerCase()) ||
+                job.address.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.job_type.toLowerCase().contains(keyword.toLowerCase()) ||
-                job.salary.toLowerCase().contains(keyword.toLowerCase()) ||
+                job.min_salary.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.description.toLowerCase().contains(keyword.toLowerCase()))
             .toList();
       }
@@ -138,28 +138,28 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
 class Job {
   final String title;
-  final String company_name;
-  final String location;
+  final String name;
+  final String address;
   final String job_type;
-  final String salary;
+  final String min_salary;
   final String description;
 
   Job({
     required this.title,
-    required this.company_name,
-    required this.location,
+    required this.name,
+    required this.address,
     required this.job_type,
-    required this.salary,
+    required this.min_salary,
     required this.description,
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
     return Job(
       title: json['title'] ?? '',
-      company_name: json['company_name'] ?? '',
-      location: json['location'] ?? '',
+      name: json['name'] ?? '',
+      address: json['address'] ?? '',
       job_type: json['job_type'] ?? '',
-      salary: json['salary'] ?? '',
+      min_salary: json['min_salary'] ?? '',
       description: json['description'] ?? '',
     );
   }
@@ -167,10 +167,10 @@ class Job {
   Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'company_name': company_name,
-      'location': location,
+      'name': name,
+      'address': address,
       'job_type': job_type,
-      'salary': salary,
+      'min_salary': min_salary,
       'description': description,
     };
   }
@@ -189,85 +189,97 @@ class _JobCardState extends State<JobCard> {
   bool isBooked = false;
 
   String generateJobKey(Job job) {
-    return "bookmarked_job_${job.title}_${job.company_name}";
+    return "bookmarked_job_${job.title}_${job.name}";
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Color.fromARGB(255, 240, 245, 248),
-      shadowColor: Color.fromARGB(255, 215, 50, 9),
-      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: InkWell(
-        borderRadius: const BorderRadius.all(Radius.circular(20)),
-        onTap: () => {},
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Stack(
-            alignment: Alignment.topRight,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.job.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+  return Card(
+    color: Color.fromARGB(255, 240, 245, 248),
+    shadowColor: Color.fromARGB(255, 215, 50, 9),
+    margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    child: InkWell(
+      borderRadius: const BorderRadius.all(Radius.circular(20)),
+      onTap: () => {
+        Navigator.pushNamed(context, '/jobdetails')
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.job.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
-                  Text(widget.job.company_name),
-                  Row(
-                    children: [
-                      const FaIcon(FontAwesomeIcons.locationDot, size: 14.0),
-                      const SizedBox(width: 4.0),
-                      Text(widget.job.location),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Container(
-                        color: const Color.fromARGB(255, 227, 225, 216),
-                        padding: EdgeInsets.symmetric(horizontal: 0),
-                        child: Text(widget.job.job_type),
-                      ),
-                      Container(
-                        color: const Color.fromARGB(255, 227, 225, 216),
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Text('\u{20B9}${widget.job.salary}'),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    widget.job.description,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-              IconButton(
-                onPressed: () {
-                  checkBookmark();
-                },
-                icon: FaIcon(
-                  isBooked
-                      ? FontAwesomeIcons.solidBookmark
-                      : FontAwesomeIcons.bookmark,
-                  color: isBooked
-                      ? const Color.fromARGB(255, 94, 90, 90)
-                      : const Color.fromARGB(255, 94, 90, 90),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                Text(widget.job.name),
+                Row(
+                  children: [
+                    const FaIcon(
+                      FontAwesomeIcons.locationDot,
+                      size: 16.0,
+                      color: Color.fromARGB(255, 140, 61, 61),
+                    ),
+                    const SizedBox(width: 4.0),
+                    Flexible(
+                      child: Text(
+                        widget.job.address,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      color: const Color.fromARGB(255, 227, 225, 216),
+                      padding: EdgeInsets.symmetric(horizontal: 0),
+                      child: Text(widget.job.job_type),
+                    ),
+                    Container(
+                      color: const Color.fromARGB(255, 227, 225, 216),
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Text('\u{20B9}${widget.job.min_salary}'),
+                    ),
+                  ],
+                ),
+                Text(
+                  widget.job.description,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+            IconButton(
+              onPressed: () {
+                checkBookmark();
+              },
+              icon: FaIcon(
+                isBooked
+                    ? FontAwesomeIcons.solidBookmark
+                    : FontAwesomeIcons.bookmark,
+                color: isBooked
+                    ? const Color.fromARGB(255, 94, 90, 90)
+                    : const Color.fromARGB(255, 94, 90, 90),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   void checkBookmark() {
     setState(() {

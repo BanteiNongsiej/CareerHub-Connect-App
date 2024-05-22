@@ -25,6 +25,7 @@ class UserInfoController extends Controller
                 "data"=>$user,
                 "email"=>$user->email,
                 "name"=>$fullName,
+                "profile_image"=>$user->profile_image,
                 "mobile_number"=>$user->mobile_number,
                 "address" => $fullAddress,
                 "dob"=>$user->dob,
@@ -34,7 +35,7 @@ class UserInfoController extends Controller
     }
     private function getFullAddress($user)
     {
-        $addressParts = [$user->country, $user->state, $user->city, $user->locality, $user->district, $user->pincode];
+        $addressParts = [$user->country, $user->state, $user->city, $user->street, $user->pincode];
         return implode(', ', array_filter($addressParts));
     }
     private function getFullName($user)
@@ -64,8 +65,7 @@ class UserInfoController extends Controller
                 'country',
                 'state',
                 'city',
-                'locality',
-                'district',
+                'street',
                 'pincode',
                 'dob',
                 'gender'
@@ -85,7 +85,7 @@ class UserInfoController extends Controller
                 'data' => [
                     //'user' => $user,
                     'email' => $user->email,
-                    'profile photo' => $user->profile_image,
+                    'profile image' => $user->profile_image,
                     'first_name' => $user->first_name,
                     'middle_name' => $user->middle_name,
                     'last_name' => $user->last_name,
