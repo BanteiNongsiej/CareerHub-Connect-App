@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:carreerhub/Home/job_details.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -40,6 +41,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         }
         jobList = dataList
             .map((data) => Job(
+                  id: data['id'] ?? '',
                   title: data['title'] ?? '',
                   name: data['name'] ?? '',
                   address: data['address'] ?? '',
@@ -48,6 +50,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   description: data['description'] ?? '',
                 ))
             .toList();
+        // for (var job in jobList) {
+        //   print(job);
+        // }
         filteredJobList =
             List.from(jobList); // Initialize filteredJobList with jobList
         isloading = false;
@@ -67,9 +72,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         filteredJobList = jobList
             .where((job) =>
                 job.title.toLowerCase().contains(keyword.toLowerCase()) ||
-                job.name
-                    .toLowerCase()
-                    .contains(keyword.toLowerCase()) ||
+                job.name.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.address.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.job_type.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.min_salary.toLowerCase().contains(keyword.toLowerCase()) ||
@@ -137,6 +140,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 }
 
 class Job {
+  final int id;
   final String title;
   final String name;
   final String address;
@@ -145,6 +149,7 @@ class Job {
   final String description;
 
   Job({
+    required this.id,
     required this.title,
     required this.name,
     required this.address,
@@ -155,6 +160,7 @@ class Job {
 
   factory Job.fromJson(Map<String, dynamic> json) {
     return Job(
+      id: json['id'] ?? '',
       title: json['title'] ?? '',
       name: json['name'] ?? '',
       address: json['address'] ?? '',
@@ -166,6 +172,7 @@ class Job {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'title': title,
       'name': name,
       'address': address,
@@ -194,92 +201,91 @@ class _JobCardState extends State<JobCard> {
 
   @override
   Widget build(BuildContext context) {
-  return Card(
-    color: Color.fromARGB(255, 240, 245, 248),
-    shadowColor: Color.fromARGB(255, 215, 50, 9),
-    margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-    child: InkWell(
-      borderRadius: const BorderRadius.all(Radius.circular(20)),
-      onTap: () => {
-        Navigator.pushNamed(context, '/jobdetails')
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Stack(
-          alignment: Alignment.topRight,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  widget.job.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+    return Card(
+      color: Color.fromARGB(255, 240, 245, 248),
+      shadowColor: Color.fromARGB(255, 215, 50, 9),
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: InkWell(
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        onTap: () => {
+          Navigator.pushNamed(context, '/jobdetails', arguments:widget.job.id)
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Stack(
+            alignment: Alignment.topRight,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.job.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(widget.job.name),
-                Row(
-                  children: [
-                    const FaIcon(
-                      FontAwesomeIcons.locationDot,
-                      size: 16.0,
-                      color: Color.fromARGB(255, 140, 61, 61),
-                    ),
-                    const SizedBox(width: 4.0),
-                    Flexible(
-                      child: Text(
-                        widget.job.address,
-                        overflow: TextOverflow.ellipsis,
+                  Text(widget.job.name),
+                  Row(
+                    children: [
+                      const FaIcon(
+                        FontAwesomeIcons.locationDot,
+                        size: 16.0,
+                        color: Color.fromARGB(255, 140, 61, 61),
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      color: const Color.fromARGB(255, 227, 225, 216),
-                      padding: EdgeInsets.symmetric(horizontal: 0),
-                      child: Text(widget.job.job_type),
-                    ),
-                    Container(
-                      color: const Color.fromARGB(255, 227, 225, 216),
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Text('\u{20B9}${widget.job.min_salary}'),
-                    ),
-                  ],
-                ),
-                Text(
-                  widget.job.description,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-            IconButton(
-              onPressed: () {
-                checkBookmark();
-              },
-              icon: FaIcon(
-                isBooked
-                    ? FontAwesomeIcons.solidBookmark
-                    : FontAwesomeIcons.bookmark,
-                color: isBooked
-                    ? const Color.fromARGB(255, 94, 90, 90)
-                    : const Color.fromARGB(255, 94, 90, 90),
+                      const SizedBox(width: 4.0),
+                      Flexible(
+                        child: Text(
+                          widget.job.address,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        color: const Color.fromARGB(255, 227, 225, 216),
+                        padding: EdgeInsets.symmetric(horizontal: 0),
+                        child: Text(widget.job.job_type),
+                      ),
+                      Container(
+                        color: const Color.fromARGB(255, 227, 225, 216),
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Text('\u{20B9}${widget.job.min_salary}'),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    widget.job.description,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-            ),
-          ],
+              IconButton(
+                onPressed: () {
+                  checkBookmark();
+                },
+                icon: FaIcon(
+                  isBooked
+                      ? FontAwesomeIcons.solidBookmark
+                      : FontAwesomeIcons.bookmark,
+                  color: isBooked
+                      ? const Color.fromARGB(255, 94, 90, 90)
+                      : const Color.fromARGB(255, 94, 90, 90),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   void checkBookmark() {
     setState(() {

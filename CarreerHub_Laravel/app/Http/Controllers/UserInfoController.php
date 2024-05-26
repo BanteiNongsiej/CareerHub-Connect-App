@@ -46,33 +46,36 @@ class UserInfoController extends Controller
     }
     public function updateUserDetails($id, Request $request){
         try {
-            // Find the user by ID
             $user = User::find($id);
-    
-            // If user not found, return a 404 response
+            //$user=new User();
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
-            }
-    
-            // Retrieve the updated data from the request
+              }
+
+            // // Retrieve the updated data from the request
             $updatedData = $request->only([
-                'email',
-                'profile_image',
-                'first_name',
-                'middle_name',
-                'last_name',
-                'mobile_number',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'first_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'mobile_number' => 'required|string|max:255',
+                'dob' => 'nullable|date',
+                'gender' => 'nullable|string|max:255',
+                'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'country',
                 'state',
                 'city',
                 'street',
                 'pincode',
-                'dob',
-                'gender'
             ]);
     
-            // Update the user model with the updated data
+            // // Update the user model with the updated data
             $user->fill($updatedData);
+            if ($request->hasFile('profile_image')) {
+                $fileName = time() . '.' . $request->profile_image->getClientOriginalExtension();
+                $request->profile_image->storeAs('public/profile_images', $fileName); // Adjust path as needed
+                $user->profile_image = $fileName;
+              }
             $user->save();
     
             // Optionally, update the full name as well

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:carreerhub/GetuserId.dart';
 import 'package:carreerhub/api.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -17,6 +20,7 @@ late String address = '';
 late String mobile_number = '';
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String imagePath = '';
   @override
   void initState() {
     getUserdetails();
@@ -80,6 +84,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void selectImage() {
+    final snackBar = SnackBar(
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          TextButton.icon(
+            icon: Icon(Icons.camera_alt),
+            label: Text('Camera'),
+            onPressed: () {
+              _pickImage(ImageSource.camera);
+            },
+          ),
+          TextButton.icon(
+            icon: Icon(Icons.photo),
+            label: Text('Gallery'),
+            onPressed: () {
+              _pickImage(ImageSource.gallery);
+            },
+          ),
+        ],
+      ),
+      backgroundColor: Colors.grey[800],
+      behavior: SnackBarBehavior.floating,
+      duration: Duration(seconds: 5),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      // Handle the picked image file
+      print('Picked image: ${pickedFile.path}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,9 +154,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: CircleAvatar(
                       radius: 45,
                       backgroundImage: AssetImage('images/no_profile.jpg'),
-                      // You can add an image here, or text if no image available
-                      // backgroundImage: AssetImage('path_to_image'),
-                      //child: Text('User', style: TextStyle(fontSize: 20)),
                     ),
                   ),
                 ),
@@ -128,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: IconButton(
                       icon: Icon(Icons.edit, color: Colors.black),
                       onPressed: () {
-                        // Add your edit profile functionality here
+                        selectImage();
                       },
                     ),
                   ),
