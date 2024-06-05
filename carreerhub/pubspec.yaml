@@ -53,6 +53,9 @@ dependencies:
   image_picker: ^1.0.8
   image_cropper: ^6.0.0
   get: any
+  
+  
+ 
 
 dev_dependencies:
   flutter_test:

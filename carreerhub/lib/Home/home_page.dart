@@ -41,15 +41,19 @@ class _HomePageScreenState extends State<HomePageScreen> {
         }
         jobList = dataList
             .map((data) => Job(
-                  id: data['id'] ?? '',
-                  title: data['title'] ?? '',
-                  name: data['name'] ?? '',
-                  address: data['address'] ?? '',
-                  job_type: data['job_type'] ?? '',
-                  min_salary: data['min_salary'] ?? '',
-                  description: data['description'] ?? '',
-                ))
+                id: data['id'] ?? '',
+                title: data['title'] ?? '',
+                name: data['name'] ?? '',
+                address: data['address'] ?? '',
+                job_type: data['job_type'] ?? '',
+                min_salary: data['min_salary'] ?? '',
+                description: data['description'] ?? '',
+                bookmark: data['bookmark']))
             .toList();
+
+        //foreach joblist, check if the id exist in the bookmar pref, is yes
+        //then set bookmark to true
+
         // for (var job in jobList) {
         //   print(job);
         // }
@@ -147,6 +151,7 @@ class Job {
   final String job_type;
   final String min_salary;
   final String description;
+  int bookmark = 0;
 
   Job({
     required this.id,
@@ -156,18 +161,19 @@ class Job {
     required this.job_type,
     required this.min_salary,
     required this.description,
+    required this.bookmark,
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
     return Job(
-      id: json['id'] ?? '',
-      title: json['title'] ?? '',
-      name: json['name'] ?? '',
-      address: json['address'] ?? '',
-      job_type: json['job_type'] ?? '',
-      min_salary: json['min_salary'] ?? '',
-      description: json['description'] ?? '',
-    );
+        id: json['id'] ?? '',
+        title: json['title'] ?? '',
+        name: json['name'] ?? '',
+        address: json['address'] ?? '',
+        job_type: json['job_type'] ?? '',
+        min_salary: json['min_salary'] ?? '',
+        description: json['description'] ?? '',
+        bookmark: json['bookmark'] ?? 0);
   }
 
   Map<String, dynamic> toJson() {
@@ -179,6 +185,7 @@ class Job {
       'job_type': job_type,
       'min_salary': min_salary,
       'description': description,
+      'bookmark': bookmark
     };
   }
 }
@@ -208,7 +215,7 @@ class _JobCardState extends State<JobCard> {
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(20)),
         onTap: () => {
-          Navigator.pushNamed(context, '/jobdetails', arguments:widget.job.id)
+          Navigator.pushNamed(context, '/jobdetails', arguments: widget.job.id)
         },
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -272,10 +279,10 @@ class _JobCardState extends State<JobCard> {
                   checkBookmark();
                 },
                 icon: FaIcon(
-                  isBooked
+                  widget.job.bookmark == 1
                       ? FontAwesomeIcons.solidBookmark
                       : FontAwesomeIcons.bookmark,
-                  color: isBooked
+                  color: widget.job.bookmark == 1
                       ? const Color.fromARGB(255, 94, 90, 90)
                       : const Color.fromARGB(255, 94, 90, 90),
                 ),
@@ -287,31 +294,38 @@ class _JobCardState extends State<JobCard> {
     );
   }
 
-  void checkBookmark() {
+  void checkBookmark() async {
+    String isbookmark = 'N';
     setState(() {
-      isBooked = !isBooked;
-      if (isBooked) {
-        Bookmark(widget.job);
+      if (widget.job.bookmark == 0) {
+        widget.job.bookmark = 1;
+        isbookmark = 'Y';
       } else {
-        unBookmark(widget.job);
+        widget.job.bookmark = 0;
+        isbookmark = 'N';
       }
     });
+
+    print(widget.job.id);
+    String url =
+        'http://10.0.3.2:8000/api/job/updateBookmark/${widget.job.id}/$isbookmark';
+    await http.get(Uri.parse(url));
   }
 
-  Future<void> Bookmark(Job job) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String encodedJob = jsonEncode(job.toJson());
-    // Use a key that combines a prefix and job title for better organization
-    final String key = generateJobKey(job);
-    await prefs.setString(key, encodedJob);
-    //print(Bookmark(job.title));
-  }
+  // Future<void> Bookmark(Job job) async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   final String encodedJob = jsonEncode(job.toJson());
+  //   // Use a key that combines a prefix and job title for better organization
+  //   final String key = generateJobKey(job);
+  //   await prefs.setString(key, encodedJob);
+  //   //print(Bookmark(job.title));
+  // }
 
-  Future<void> unBookmark(Job job) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String key = generateJobKey(job);
-    await prefs.remove(key);
-  }
+  // Future<void> unBookmark(Job job) async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   final String key = generateJobKey(job);
+  //   await prefs.remove(key);
+  // }
 }
 
 class JobCardPlaceholder extends StatefulWidget {

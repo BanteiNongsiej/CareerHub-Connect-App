@@ -72,30 +72,31 @@ class _JobPostDetailsState extends State<JobPostDetails> {
                 ),
                 SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: schedule,
+                  value: job_type,
                   decoration: InputDecoration(
-                    labelText: 'Schedule *',
+                    labelText: 'Job Type *',
                     border: OutlineInputBorder(),
                   ),
                   items: [
                     'Select an option',
-                    'Day Shift',
-                    'Night Shift',
-                    'Evening Shift'
-                  ].map((schedule) {
+                    'Full-time',
+                    'Permanent',
+                    'Part-time',
+                    'Temporary'
+                  ].map((type) {
                     return DropdownMenuItem<String>(
-                      value: schedule,
-                      child: Text(schedule),
+                      value: type,
+                      child: Text(type),
                     );
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      schedule = value!;
+                      job_type = value!;
                     });
                   },
                   validator: (value) {
                     if (value == 'Select an option') {
-                      return 'Please select a schedule';
+                      return 'Please select a job type';
                     }
                     return null;
                   },

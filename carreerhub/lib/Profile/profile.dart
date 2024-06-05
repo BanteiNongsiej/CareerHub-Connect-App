@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:carreerhub/GetuserId.dart';
 import 'package:carreerhub/api.dart';
 import 'package:flutter/material.dart';
@@ -121,6 +120,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Handle the picked image file
       print('Picked image: ${pickedFile.path}');
     }
+  }
+
+  Future<void> pickResume() async {
+    // FilePickerResult? result=await FilePiker.platform.pickFiles();
   }
 
   @override
@@ -254,7 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Add your build resume functionality here
+                      pickResume();
                     },
                     child: Text(
                       'Upload Resume',

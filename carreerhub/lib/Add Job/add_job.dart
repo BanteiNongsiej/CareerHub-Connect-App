@@ -87,20 +87,25 @@ class _AddJobScreenState extends State<AddJobScreen> {
                           width: double.infinity,
                           child: ElevatedButton(
                             style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(Color.fromARGB(255, 34, 89, 134)),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 34, 89, 134)),
                               alignment: Alignment.center,
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
                                 ),
                               ),
                             ),
                             onPressed: () {
                               Navigator.pushNamed(context, '/jobpostbasic');
                             },
-                            child: Text("Post a free job*",
-                              style: TextStyle(color: Colors.white, fontSize: 18),
-                              ),
+                            child: Text(
+                              "Post a free job*",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
                           ),
                         ),
                         Image.asset(
@@ -120,7 +125,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/jobpostbasic');
+          Navigator.pushNamed(context, '/jobpost');
         },
         child: Icon(Icons.add),
       ),
@@ -192,8 +197,9 @@ class _JobCardState extends State<JobCard> {
                       const FaIcon(FontAwesomeIcons.locationDot, size: 14.0),
                       const SizedBox(width: 4.0),
                       Flexible(
-                        child: Text(widget.job.address,
-                          overflow:TextOverflow.ellipsis,
+                        child: Text(
+                          widget.job.address,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -213,7 +219,10 @@ class _JobCardState extends State<JobCard> {
                       ),
                     ],
                   ),
-                  Text(widget.job.description,overflow: TextOverflow.ellipsis,),
+                  Text(
+                    widget.job.description,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
               IconButton(

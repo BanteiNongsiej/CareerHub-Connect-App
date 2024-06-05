@@ -41,6 +41,8 @@ Route::controller(JobController::class)->group(function(){
     Route::get('/dashboard/job/showalljob','showalljob');
     Route::put('dashboard/job/update/job','update');
     Route::delete('dashboard/job/delete/job','delete');
+
+    Route::get('/job/updateBookmark/{job}/{status}','updateBookmark');
 });
 
 Route::controller(ExperienceController::class)->group(function(){

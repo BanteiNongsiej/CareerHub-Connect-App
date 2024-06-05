@@ -18,10 +18,12 @@ class JobController extends Controller
             $job->name = $request->name;
             $job->street = $request->street;
             $job->city = $request->city;
+            $job->pincode=$request->pincode;
             $job->state = $request->state;
             $job->country= $request->country;
             $job->min_salary= $request->min_salary;
             $job->max_salary= $request->max_salary;
+            $job->salary_period=$request->salary_period;
             $job->job_type= $request->job_type;
             $job->shift_type= $request->shift_type;
             $job->no_people= $request->no_people;
@@ -74,7 +76,7 @@ class JobController extends Controller
         }
     }
     public function getAddress($job) {
-        $addressParts = [$job->street, $job->city, $job->pincode,$job->city,$job->state, $job->country ];
+        $addressParts = [$job->street,$job->pincode, $job->city, $job->pincode,$job->city,$job->state, $job->country ];
         return implode(', ', array_filter($addressParts));
     }
     
@@ -136,7 +138,8 @@ class JobController extends Controller
                     'experience_req' => $job->experience_req,
                     'qualification_req' => $job->qualification_req,
                     'skills' => $job->skills,
-                    'description' => $job->description
+                    'description' => $job->description,
+                    'bookmark' =>$job->bookmark
                 ];
             });
             return response()->json([
@@ -177,5 +180,16 @@ class JobController extends Controller
                 "message"=>"Job is not update"
             ],404);
         }
+    }
+
+    public function updateBookmark(Job $job,$status){
+        if($status=='Y')
+            $job->bookmark = true;
+        else
+            $job->bookmark = false;
+        $job->save();
+        return response()->json([
+            'data'=>'ok'
+        ]);
     }
 }
