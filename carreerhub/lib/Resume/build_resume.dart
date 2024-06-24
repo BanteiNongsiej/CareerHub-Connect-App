@@ -1,3 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:carreerhub/GetuserId.dart';
+import 'package:carreerhub/helper/commonhelper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -9,6 +15,22 @@ class BuildResume extends StatefulWidget {
 class _BuildResumeState extends State<BuildResume> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
+  int user_id = 0;
+
+  Future getUserId() async {
+    user_id = await UserIdStorage.getUserId() as int;
+  }
+
+  final firstnameController = TextEditingController();
+  final middlenameController = TextEditingController();
+  final lastnameController = TextEditingController();
+  final dobController = TextEditingController();
+  final genderController = TextEditingController();
+  final countryController = TextEditingController();
+  final stateController = TextEditingController();
+  final cityController = TextEditingController();
+  final streetController = TextEditingController();
+  final pincodeController = TextEditingController();
 
   // Data fields for users
   String first_name = '';
@@ -17,11 +39,24 @@ class _BuildResumeState extends State<BuildResume> {
   DateTime? dob;
   String? gender;
   String street = '';
+  String city = '';
   String state = '';
-  String country = '';
+  String country = 'India';
   String pincode = '';
 
   // Data fields for education
+  final education_level_nameController = TextEditingController();
+  final study_fieldController = TextEditingController();
+  final school_nameController = TextEditingController();
+  final school_stateController = TextEditingController();
+  final school_cityController = TextEditingController();
+  final s_start_monthController = TextEditingController();
+  final s_start_yearController = TextEditingController();
+  final s_finish_monthController = TextEditingController();
+  final s_finish_yearController = TextEditingController();
+  final skillController = TextEditingController();
+  final gradeController = TextEditingController();
+
   String education_level_name = '';
   String study_field = '';
   String school_name = '';
@@ -35,6 +70,15 @@ class _BuildResumeState extends State<BuildResume> {
   String skill = '';
 
   // Data fields for experience
+  final company_nameController = TextEditingController();
+  final c_stateController = TextEditingController();
+  final c_cityController = TextEditingController();
+  final j_descriptionController = TextEditingController();
+  final j_start_monthController = TextEditingController();
+  final j_start_yearController = TextEditingController();
+  final j_finish_monthController = TextEditingController();
+  final j_finish_yearController = TextEditingController();
+
   String company_name = '';
   String c_state = '';
   String c_city = '';
@@ -45,6 +89,7 @@ class _BuildResumeState extends State<BuildResume> {
   String j_finish_year = '';
 
   // Data fields for certification
+  final certification_nameController = TextEditingController();
   String Certification_name = '';
 
   void nextPage() {
@@ -110,7 +155,9 @@ class _BuildResumeState extends State<BuildResume> {
             ),
           if (_currentPage == 3)
             ElevatedButton(
-              onPressed: ()=>{Navigator.pushNamed(context, '/reviewresume')},//_submitForm,
+              onPressed: () => {
+                Navigator.pushNamed(context, '/reviewresume')
+              }, //_submitForm,
               child: Text('Review'),
             ),
         ],
@@ -149,6 +196,8 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: firstnameController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Middle Name',
                 border: OutlineInputBorder(),
@@ -157,6 +206,8 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: middlenameController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Last Name',
                 border: OutlineInputBorder(),
@@ -200,6 +251,48 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: countryController,
+              keyboardType: TextInputType.name,
+              decoration: InputDecoration(
+                labelText: 'Country',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  country = value;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter Country name';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: stateController,
+              keyboardType: TextInputType.name,
+              decoration: InputDecoration(
+                labelText: 'State',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) => country = value,
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: cityController,
+              keyboardType: TextInputType.name,
+              decoration: InputDecoration(
+                labelText: 'City',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) => country = value,
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: streetController,
+              keyboardType: TextInputType.streetAddress,
               decoration: InputDecoration(
                 labelText: 'Street',
                 border: OutlineInputBorder(),
@@ -208,22 +301,8 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
-              decoration: InputDecoration(
-                labelText: 'State',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) => state = value,
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Country',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) => country = value,
-            ),
-            SizedBox(height: 16),
-            TextFormField(
+              controller: pincodeController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Pincode',
                 border: OutlineInputBorder(),
@@ -246,6 +325,8 @@ class _BuildResumeState extends State<BuildResume> {
             Text('Education Details', style: TextStyle(fontSize: 20)),
             SizedBox(height: 16),
             TextFormField(
+              controller: education_level_nameController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Education Level Name',
                 border: OutlineInputBorder(),
@@ -254,6 +335,8 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: study_fieldController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Study Field',
                 border: OutlineInputBorder(),
@@ -262,6 +345,8 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: school_nameController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'School Name',
                 border: OutlineInputBorder(),
@@ -270,6 +355,8 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: school_stateController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'School State',
                 border: OutlineInputBorder(),
@@ -278,6 +365,8 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: school_cityController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'School City',
                 border: OutlineInputBorder(),
@@ -286,6 +375,8 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: gradeController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Grade',
                 border: OutlineInputBorder(),
@@ -297,6 +388,7 @@ class _BuildResumeState extends State<BuildResume> {
               children: [
                 Expanded(
                   child: TextFormField(
+                    controller: s_start_monthController,
                     decoration: InputDecoration(
                       labelText: 'Start Month',
                       border: OutlineInputBorder(),
@@ -355,98 +447,104 @@ class _BuildResumeState extends State<BuildResume> {
   }
 
   Widget _buildJobExperiencePage() {
-  return Padding(
-    padding: EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Job Experience', style: TextStyle(fontSize: 20)),
-        SizedBox(height: 16),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: 'Company Name',
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) => company_name = value,
-        ),
-        SizedBox(height: 16),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: 'State',
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) => c_state = value,
-        ),
-        SizedBox(height: 16),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: 'City',
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) => c_city = value,
-        ),
-        
-        SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Start Month',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) => j_start_month = value,
-              ),
+    return Padding(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Job Experience', style: TextStyle(fontSize: 20)),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: company_nameController,
+            keyboardType: TextInputType.name,
+            decoration: InputDecoration(
+              labelText: 'Company Name',
+              border: OutlineInputBorder(),
             ),
-            SizedBox(width: 16),
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Finish Month',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) => j_finish_month = value,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Start Year',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) => j_start_year = value,
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Finish Year',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) => j_finish_year = value,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 16),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: 'Job Description',
-            border: OutlineInputBorder(),
+            onChanged: (value) => company_name = value,
           ),
-          onChanged: (value) => j_description = value,
-        ),
-      ],
-    ),
-  );
-}
-
+          SizedBox(height: 16),
+          TextFormField(
+            controller: c_stateController,
+            keyboardType: TextInputType.name,
+            decoration: InputDecoration(
+              labelText: 'State',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) => c_state = value,
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: c_cityController,
+            keyboardType: TextInputType.name,
+            decoration: InputDecoration(
+              labelText: 'City',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) => c_city = value,
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Start Month',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => j_start_month = value,
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Finish Month',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => j_finish_month = value,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Start Year',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => j_start_year = value,
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Finish Year',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => j_finish_year = value,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: j_descriptionController,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+              labelText: 'Job Description',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) => j_description = value,
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildQualificationsPage() {
     return Padding(
@@ -456,24 +554,74 @@ class _BuildResumeState extends State<BuildResume> {
         children: [
           Text('Certification', style: TextStyle(fontSize: 20)),
           TextFormField(
-            decoration: InputDecoration(labelText: 'Certification',border: OutlineInputBorder()),
+            controller: certification_nameController,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+                labelText: 'Certification', border: OutlineInputBorder()),
             onChanged: (value) => Certification_name = value,
           ),
-          SizedBox(height: 16.0,),
-          ElevatedButton(onPressed: ()=>{}, child:Text('Add'))
+          SizedBox(
+            height: 16.0,
+          ),
+          ElevatedButton(onPressed: () => {}, child: Text('Add'))
         ],
       ),
     );
   }
 
-  void _submitForm() {
-    // Store data to database or perform any other action
-    //print('User Name: $userName');
-    //print('Address: $userAddress');
-    //print('Education Details: $educationDetails');
-    //print('Job Experience: $jobExperience');
-    //print('Qualifications: $qualifications');
+  void _submitForm() async {
+    try {
+      await getUserId();
+      final first_name = firstnameController;
+      final middle_name = middlenameController;
+      final last_name = lastnameController;
+      final dob = dobController;
+      final country = countryController;
+      final state = stateController;
+      final city = cityController;
+      final street = streetController;
+      final pincode = pincodeController;
 
-    // You can add code here to store the data to your database
+      final education_level = education_level_nameController;
+      final study_field = study_fieldController;
+      final school_name = school_nameController;
+      final school_state = school_stateController;
+      final school_city = school_cityController;
+      final skill = skillController;
+      final grade = gradeController;
+
+      final company_name = company_nameController;
+      final c_state = c_stateController;
+      final c_city = c_cityController;
+      final j_description = j_descriptionController;
+
+      final certification_name = certification_nameController;
+
+      final url = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/insert/$user_id'
+          : 'http://localhost:8000/api/dashboard/job/insert/$user_id';
+
+      final response = await http.post(Uri.parse(url),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'First Name': first_name,
+            'Middle Name': middle_name,
+            'Last_Name': last_name,
+            'Date of Birth': dob,
+            'gender': gender,
+            'Street': street,
+            'Pin Code':pincode,
+            'City':city,
+            'State':state,
+            'Country':country,
+          }));
+    } catch (e) {
+      print('Error: $e');
+      CommonHelper.animatedSnackBar(
+          context, 'Failed to connect', AnimatedSnackBarType.error);
+    }
   }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\JobController;
@@ -54,4 +55,8 @@ Route::controller(ExperienceController::class)->group(function(){
 Route::controller(EducationController::class)->group(function(){
     Route::post('/dashboard/resume/InsertEducation/{user_id}','insert');
     Route::post('/dashboard/resume/UpdateEducation/{user_id}','update');
+});
+
+Route::controller(CertificationController::class)->group(function(){
+    Route::post('/dashboard/resume/InsertCertification/{user_id}','insert');
 });

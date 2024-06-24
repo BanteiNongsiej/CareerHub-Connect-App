@@ -1,10 +1,7 @@
 //import 'dart:js';
 
 import 'package:carreerhub/Add%20Job/add_job.dart';
-import 'package:carreerhub/Add%20Job/add_job_salary.dart';
 import 'package:carreerhub/Add%20Job/job_post.dart';
-import 'package:carreerhub/Add%20Job/job_post_basic.dart';
-import 'package:carreerhub/Add%20Job/job_post_details.dart';
 import 'package:carreerhub/Home/bookmarkjob.dart';
 import 'package:carreerhub/Home/job_details.dart';
 import 'package:carreerhub/Resume/build_resume.dart';
@@ -58,10 +55,7 @@ class MyApp extends StatelessWidget {
         '/chatbox': (context) => const ChatBoxScreen(),
         '/notification': (context) => const NotificationScreen(),
         '/jobpostform': (context) => JobPostFormScreen(),
-        '/jobpostbasic': (context) => JobPostBasic(),
-        '/jobpostdetails': (context) => JobPostDetails(),
         '/jobpost':(context)=> JobPost(),
-        '/jobpostsalary': (context) => JobPostSalary(),
         '/bookmarkjob': (context) => JobBookmarkScreen(),
         '/jobdetails': (context) => JobDetails(jobId: ModalRoute.of(context)!.settings.arguments as int),
         '/buildresume': (context) => BuildResume(),

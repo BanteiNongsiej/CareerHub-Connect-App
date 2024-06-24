@@ -1,6 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:carreerhub/GetuserId.dart';
+import 'package:carreerhub/helper/commonhelper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class JobPost extends StatefulWidget {
   @override
@@ -30,7 +36,7 @@ class _JobPostState extends State<JobPost> {
   final no_peopleController = TextEditingController();
   final experience_reqController = TextEditingController();
   final qualification_reqController = TextEditingController();
-  final skillController = TextEditingController();
+  //final skillController = TextEditingController();
   final descriptionController = TextEditingController();
   final min_salaryController = TextEditingController();
   final max_salaryController = TextEditingController();
@@ -47,13 +53,13 @@ class _JobPostState extends State<JobPost> {
   String min_salary = '';
   String max_salary = '';
   String salary_period = 'Per Month';
-  String job_type = 'Select an option';
-  String shift_type = 'Select an option';
+  String job_type = 'Full-time';
+  String shift_type = 'Day';
   String no_people = '';
   String experience_req = '';
   String qualification_req = '';
   String description = '';
-  String skill = '';
+  //String skill = '';
 
   final Map<String, List<String>> states = {
     'India': [
@@ -144,8 +150,14 @@ class _JobPostState extends State<JobPost> {
     },
   };
 
+  @override
+  void initState() {
+    super.initState();
+    getUserId();
+  }
+
   void nextPage() {
-    if (_currentPage < 2) {
+    if (_currentPage < 3) {
       _pageController.nextPage(
         duration: Duration(milliseconds: 300),
         curve: Curves.ease,
@@ -187,6 +199,7 @@ class _JobPostState extends State<JobPost> {
               JobBasicsDetails(),
               JobDetailsPage(),
               SalaryDetailsPage(),
+              ReviewJobDetailsPage(),
             ],
           ),
         ),
@@ -194,25 +207,50 @@ class _JobPostState extends State<JobPost> {
       bottomNavigationBar: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          if (_currentPage != 0)
-            ElevatedButton(
-              onPressed: previousPage,
-              child: Text('Previous'),
-            ),
-          if (_currentPage != 2)
+          if (_currentPage == 0)
             ElevatedButton(
               onPressed: nextPage,
               child: Text('Next'),
             ),
+          if (_currentPage == 1)
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: previousPage,
+                  child: Text('Previous'),
+                ),
+                SizedBox(width: 82),
+                ElevatedButton(
+                  onPressed: nextPage,
+                  child: Text('Next'),
+                ),
+              ],
+            ),
           if (_currentPage == 2)
             ElevatedButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  formKey.currentState!.save();
-                  Navigator.pushNamed(context, '/reviewresume');
-                }
-              },
+              onPressed: previousPage,
+              child: Text('Previous'),
+            ),
+          if (_currentPage == 2)
+            ElevatedButton(
+              onPressed: nextPage,
               child: Text('Review'),
+            ),
+          if (_currentPage == 3)
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: previousPage,
+                  child: Text('Edit Job Details'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    popupdialog(context);
+                  },
+                  child: Text('Submit'),
+                ),
+              ],
             ),
         ],
       ),
@@ -220,6 +258,7 @@ class _JobPostState extends State<JobPost> {
   }
 
   Widget JobBasicsDetails() {
+    countryController.text = country;
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(10),
@@ -240,18 +279,31 @@ class _JobPostState extends State<JobPost> {
                 labelText: 'Job Title',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) => job_title = value,
+              onChanged: (value) {
+                setState(() {
+                  job_title = value;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter Job title';
+                }
+                return null;
+              },
             ),
             SizedBox(height: 16),
             TextFormField(
-              controller: company_nameControlller,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: 'Company Name',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) => company_name = value,
-            ),
+                controller: company_nameControlller,
+                keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  labelText: 'Company Name',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    company_name = value;
+                  });
+                }),
             SizedBox(height: 16),
             TextFormField(
               controller: countryController,
@@ -260,47 +312,140 @@ class _JobPostState extends State<JobPost> {
                 labelText: 'Country',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) => country = value,
+              //initialValue: 'India',
+              onChanged: (value) {
+                setState(() {
+                  country = value;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter Country name';
+                }
+                return null;
+              },
             ),
             SizedBox(height: 16),
-            TextFormField(
-              controller: countryController,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: 'State',
-                border: OutlineInputBorder(),
+            TypeAheadFormField<String>(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: stateController,
+                decoration: InputDecoration(
+                  labelText: 'State',
+                  hintText: 'Enter State',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              onChanged: (value) => state = value,
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              controller: countryController,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: 'City',
-                border: OutlineInputBorder(),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter Country name';
+                }
+                return null;
+              },
+              suggestionsCallback: (pattern) {
+                return states[country]!
+                    .where((state) =>
+                        state.toLowerCase().contains(pattern.toLowerCase()))
+                    .toList();
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                );
+              },
+              onSuggestionSelected: (suggestion) {
+                stateController.text = suggestion;
+                setState(() {
+                  state = suggestion;
+                  cityController
+                      .clear(); // Clear the city when a new state is selected
+                });
+              },
+              noItemsFoundBuilder: (context) => Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('No state found.'),
               ),
-              onChanged: (value) => city = value,
+            ),
+            SizedBox(height: 16),
+            TypeAheadFormField<String>(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: cityController,
+                decoration: InputDecoration(
+                  labelText: 'City',
+                  hintText: 'Enter City',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter Country name';
+                }
+                return null;
+              },
+              suggestionsCallback: (pattern) {
+                if (state.isNotEmpty && cities[country]!.containsKey(state)) {
+                  return cities[country]![state]!
+                      .where((city) =>
+                          city.toLowerCase().contains(pattern.toLowerCase()))
+                      .toList();
+                } else {
+                  return [];
+                }
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                );
+              },
+              onSuggestionSelected: (suggestion) {
+                cityController.text = suggestion;
+                setState(() {
+                  city = suggestion;
+                });
+              },
+              noItemsFoundBuilder: (context) => Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('No city found.'),
+              ),
             ),
             SizedBox(height: 16),
             TextFormField(
-              controller: countryController,
+              controller: streetController,
               keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Street',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) => street = value,
+              onChanged: (value) {
+                setState(() {
+                  street = value;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter Country name';
+                }
+                return null;
+              },
             ),
             SizedBox(height: 16),
             TextFormField(
-              controller: countryController,
+              controller: pincodeController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'Pincode',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) => pincode = value,
+              onChanged: (value) {
+                setState(() {
+                  pincode = value;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter Country name';
+                }
+                return null;
+              },
             ),
           ],
         ),
@@ -309,6 +454,8 @@ class _JobPostState extends State<JobPost> {
   }
 
   Widget JobDetailsPage() {
+    job_type = 'Full-time';
+    shift_type = 'Day';
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(16),
@@ -329,12 +476,13 @@ class _JobPostState extends State<JobPost> {
                 labelText: 'Job Type *',
                 border: OutlineInputBorder(),
               ),
+
               items: [
-                'Select an option',
                 'Full-time',
                 'Permanent',
                 'Part-time',
-                'Temporary'
+                'Temporary',
+                'Internship'
               ].map((type) {
                 return DropdownMenuItem<String>(
                   value: type,
@@ -346,12 +494,12 @@ class _JobPostState extends State<JobPost> {
                   job_type = value!;
                 });
               },
-              validator: (value) {
-                if (value == 'Select an option') {
-                  return 'Please select a job type';
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == 'Select an option') {
+              //     return 'Please select a job type';
+              //   }
+              //   return null;
+              // },
             ),
             SizedBox(height: 16),
             DropdownButtonFormField<String>(
@@ -360,12 +508,7 @@ class _JobPostState extends State<JobPost> {
                 labelText: 'Shift Type *',
                 border: OutlineInputBorder(),
               ),
-              items: [
-                'Select an option',
-                'Day Shift',
-                'Night Shift',
-                'Flexible Shift'
-              ].map((type) {
+              items: ['Day', 'Night', 'Morning'].map((type) {
                 return DropdownMenuItem<String>(
                   value: type,
                   child: Text(type),
@@ -376,12 +519,12 @@ class _JobPostState extends State<JobPost> {
                   shift_type = value!;
                 });
               },
-              validator: (value) {
-                if (value == 'Select an option') {
-                  return 'Please select a shift type';
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == 'Select an option') {
+              //     return 'Please select a shift type';
+              //   }
+              //   return null;
+              // },
             ),
             SizedBox(height: 16),
             TextFormField(
@@ -398,7 +541,9 @@ class _JobPostState extends State<JobPost> {
                 return null;
               },
               onChanged: (value) {
-                no_people = value;
+                setState(() {
+                  no_people = value;
+                });
               },
             ),
             SizedBox(height: 16),
@@ -410,7 +555,9 @@ class _JobPostState extends State<JobPost> {
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
-                experience_req = value;
+                setState(() {
+                  experience_req = value;
+                });
               },
             ),
             SizedBox(height: 16),
@@ -422,31 +569,44 @@ class _JobPostState extends State<JobPost> {
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
-                qualification_req = value;
+                setState(() {
+                  qualification_req = value;
+                });
               },
             ),
             SizedBox(height: 16),
+            // TextFormField(
+            //   controller: skillController,
+            //   keyboardType: TextInputType.name,
+            //   decoration: InputDecoration(
+            //     labelText: 'Skills Required',
+            //     border: OutlineInputBorder(),
+            //   ),
+            //   onChanged: (value) {
+            //     setState(() {
+            //       skill = value;
+            //     });
+            //   },
+            // ),
+            // SizedBox(height: 16),
             TextFormField(
-              controller: skillController,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: 'Skills Required',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                skill = value;
-              },
-            ),
-            SizedBox(height: 16),
-            TextFormField(
+              controller: descriptionController,
               maxLines: null,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 labelText: 'Job Description',
                 border: OutlineInputBorder(),
               ),
+              // validator: (value) {
+              //   if (value == null || value.isEmpty) {
+              //     return 'Please enter Country name';
+              //   }
+              //   return null;
+              // },
               onChanged: (value) {
-                description = value;
+                setState(() {
+                  description = value;
+                });
               },
             ),
           ],
@@ -522,12 +682,12 @@ class _JobPostState extends State<JobPost> {
                     labelText: 'Maximum Salary',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the maximum salary';
-                    }
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value == null || value.isEmpty) {
+                  //     return 'Please enter the maximum salary';
+                  //   }
+                  //   return null;
+                  // },
                   onChanged: (value) {
                     max_salary = value;
                   },
@@ -583,5 +743,189 @@ class _JobPostState extends State<JobPost> {
         ),
       ),
     );
+  }
+
+  Widget ReviewJobDetailsPage() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Review Job Details',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            Text('Job Basics Details:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('Job Title: $job_title'),
+            Text('Company Name: $company_name'),
+            Text('Country: $country'),
+            Text('State: $state'),
+            Text('City: $city'),
+            Text('Street: $street'),
+            Text('Pincode: $pincode'),
+            SizedBox(height: 20),
+            Text('Job Details:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('Job Type: $job_type'),
+            Text('Shift Type: $shift_type'),
+            Text('Number of People to Hire: $no_people'),
+            Text('Number of Years of Experience: $experience_req'),
+            Text('Qualifications Required: $qualification_req'),
+            //Text('Skills Required: $skill'),
+            Text('Job Description: $description'),
+            SizedBox(height: 20),
+            Text('Salary Details:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('Minimum Salary: $min_salary'),
+            Text('Maximum Salary: $max_salary'),
+            Text('Salary Period: $salary_period'),
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void popupdialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Confirm Submission'),
+          content: Text('Do you want to submit?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                post();
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void post() async {
+    try {
+      // Retrieve user ID
+      await getUserId();
+
+      // Validate form (uncomment if needed)
+      // if (!formKey.currentState!.validate()) {
+      //   return;
+      // }
+
+      // Retrieve form data
+      final title = job_titleController.text;
+      final company_name = company_nameControlller.text;
+      final country = countryController.text;
+      final state = stateController.text;
+      final city = cityController.text;
+      final street = streetController.text;
+      final pincode = pincodeController.text;
+      final no_people = no_peopleController.text;
+      final experience_req = experience_reqController.text;
+      final qualification_req = qualification_reqController.text;
+      final description = descriptionController.text;
+      final min_salary = min_salaryController.text;
+      final max_salary = max_salaryController.text;
+      // final job_type = job_typeController.text; // Commented out in your code
+      // final shift_type = shift_typeController.text; // Commented out in your code
+      // final salary_period = salary_periodController.text; // Commented out in your code
+
+      // Construct URL
+      final url = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/insert/$user_id'
+          : 'http://localhost:8000/api/dashboard/job/insert/$user_id';
+      print('Request body: ${jsonEncode({
+            'title': title,
+            'company_name': company_name,
+            'country': country,
+            'state': state,
+            'city': city,
+            'street': street,
+            'pincode': pincode,
+            'job_type': job_type,
+            'shift_type': shift_type,
+            'no_people': no_people,
+            'experience_req': experience_req,
+            'qualification_req': qualification_req,
+            'description': description,
+            'min_salary': min_salary,
+            'max_salary': max_salary,
+            'salary_period': salary_period,
+          })}');
+      // Make POST request
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'title': title,
+          'company_name': company_name,
+          'country': country,
+          'state': state,
+          'city': city,
+          'street': street,
+          'pincode': pincode,
+          'job_type': job_type, // Make sure this is correctly defined
+          // 'shift_type': shift_type, // Make sure this is correctly defined
+          'no_people': no_people,
+          'experience_req': experience_req,
+          'qualification_req': qualification_req,
+          'description': description,
+          'min_salary': min_salary,
+          'max_salary': max_salary,
+          'salary_period': salary_period, // Make sure this is correctly defined
+        }),
+      );
+
+      print('Response body: ${response.body}');
+
+      // Check response status code
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Show success message
+        CommonHelper.animatedSnackBar(
+          context,
+          data['message'],
+          AnimatedSnackBarType.success,
+        );
+        // Navigate to dashboard
+        Navigator.pushNamed(context, '/dashboard');
+      } else {
+        // Show error message
+        final data = jsonDecode(response.body);
+        CommonHelper.animatedSnackBar(
+          context,
+          data['message'],
+          AnimatedSnackBarType.error,
+        );
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('Error: $e');
+      // Show error message
+      CommonHelper.animatedSnackBar(
+        context,
+        'An error occurred while posting the job.',
+        AnimatedSnackBarType.error,
+      );
+    }
   }
 }

@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 
 class EducationController extends Controller
 {
-    public function insert(Request $request,$id)
+    public function insert(Request $request,$user_id)
     {
         try {
             $education = new Education();
-            $education->user_id = $request->user_id;
+            $education->user_id = $user_id;
             $education->level = $request->level;
             $education->field = $request->field;
             $education->school_name = $request->school_name;

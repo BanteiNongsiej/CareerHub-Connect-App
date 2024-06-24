@@ -99,7 +99,7 @@ class _AddJobScreenState extends State<AddJobScreen> {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.pushNamed(context, '/jobpostbasic');
+                              Navigator.pushNamed(context, '/jobpost');
                             },
                             child: Text(
                               "Post a free job*",

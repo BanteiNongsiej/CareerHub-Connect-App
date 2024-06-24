@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class ExperienceController extends Controller
 {
-    public function insert(ExperienceRequest $request,$user_id){
+    public function insert(Request $request,$user_id){
         try{
             $experience=new Experience();
             $experience->user_id = $user_id;

@@ -29,7 +29,8 @@ class UserInfoController extends Controller
                 "mobile_number"=>$user->mobile_number,
                 "address" => $fullAddress,
                 "dob"=>$user->dob,
-                "gender"=>$user->gender
+                "gender"=>$user->gender,
+                "resume"=>$user->resume
             ],200);
         }
     }
@@ -95,7 +96,8 @@ class UserInfoController extends Controller
                     'mobile_number' => $user->mobile_number,
                     'address' => $fullAddress,
                     'dob'=>$user->dob,
-                    'gender'=>$user->gender
+                    'gender'=>$user->gender,
+                    "resume"=>$user->resume
                 ]
             ], 200);
         } catch (Exception $e) {
