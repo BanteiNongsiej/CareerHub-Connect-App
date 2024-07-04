@@ -1,18 +1,21 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:carreerhub/helper/commonhelper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:skeletonizer/skeletonizer.dart';
 
-class JobDetails extends StatefulWidget {
+class ListJobsDetails extends StatefulWidget {
   final int jobId;
 
-  JobDetails({required this.jobId});
+  ListJobsDetails({required this.jobId});
 
   @override
-  State<JobDetails> createState() => _JobDetailsState();
+  State<ListJobsDetails> createState() => _ListJobsDetailsState();
 }
 
-class _JobDetailsState extends State<JobDetails> {
+class _ListJobsDetailsState extends State<ListJobsDetails> {
   Job? job;
   bool isLoading = true;
 
@@ -84,13 +87,6 @@ class _JobDetailsState extends State<JobDetails> {
             SizedBox(height: 8),
             Container(width: 200.0, height: 24.0, color: Colors.grey[300]),
             SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(width: 100, height: 40, color: Colors.grey[300]),
-                Container(width: 40, height: 40, color: Colors.grey[300]),
-              ],
-            ),
           ],
         ),
       ),
@@ -139,40 +135,17 @@ class _JobDetailsState extends State<JobDetails> {
             job!.description,
             style: TextStyle(fontSize: 16, color: Colors.black87),
           ),
-          SizedBox(height: 24),
-          Column(
+          SizedBox(height: 16),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              SizedBox(
-                width:double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/applyingjob',arguments: widget.jobId);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    //primary: Colors.grey,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    textStyle: TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                  child: Text('Apply now',style: TextStyle(fontWeight: FontWeight.bold),),
-                ),
-              ),
-              SizedBox(
-                width:double.infinity,
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        // Add to bookmarks button pressed
-                      },
-                      icon: Icon(
-                        Icons.bookmark_outline_sharp,
-                        size: 32,
-                        color: Colors.blueGrey,
-                      ),
-                    ),
-                    Text('Save this job',style: TextStyle(fontWeight: FontWeight.bold),),
-                  ],
+              IconButton(
+                onPressed: () {
+                  popup(context); // Add to bookmarks button pressed
+                },
+                icon: Icon(
+                  Icons.delete,
+                  size: 32,
                 ),
               ),
             ],
@@ -208,6 +181,75 @@ class _JobDetailsState extends State<JobDetails> {
         ],
       ),
     );
+  }
+
+  void popup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete'),
+          content: Text('Are you sure?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                deletejob();
+              },
+              child: Text('delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deletejob() async {
+    try {
+      final url = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/delete/${widget.jobId}'
+          : 'http://localhost:8000/api/dashboard/job/delete/${widget.jobId}';
+      print('Deleting job with URL: $url'); // Debug print
+
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
+
+      print('Response status: ${response.statusCode}'); // Debug print
+      print('Response body: ${response.body}'); // Debug print
+
+      if (response.statusCode == 200) {
+        Navigator.of(context)
+            .pop(); // Close the popup after successful deletion
+        CommonHelper.animatedSnackBar(
+          context,
+          'Job has been deleted successfully',
+          AnimatedSnackBarType.success,
+        );
+      } else {
+        CommonHelper.animatedSnackBar(
+          context,
+          'Job deletion failed',
+          AnimatedSnackBarType.error,
+        );
+      }
+    } catch (e) {
+      print('Error caught in catch block: $e'); // Debug print
+      CommonHelper.animatedSnackBar(
+        context,
+        'An error occurred: $e',
+        AnimatedSnackBarType.error,
+      );
+    }
   }
 }
 

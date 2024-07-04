@@ -9,7 +9,7 @@ class Job extends Model
 {
     use HasFactory;
     protected $guarded=['$id'];
-    protected $casts = [
-        'skills' => 'array',
-    ];
+    // protected $casts = [
+    //     'skills' => 'array',
+    // ];
 }

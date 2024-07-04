@@ -121,35 +121,36 @@ class _LoginState extends State<Login> {
                   ),
                   const SizedBox(height: 5),
                   Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/register');
-                      },
-                      child: Text(
-                        'If not registered? Click here to register',
-                        style: const TextStyle(
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/register');
+                        },
+                        child: Text(
+                          'If not registered? Click here to register',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 0), // Add some space between buttons
-                    TextButton(
-                      onPressed: () {
-                        // Handle forgot password action
-                      },
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
+                      const SizedBox(
+                          height: 0), // Add some space between buttons
+                      TextButton(
+                        onPressed: () {
+                          // Handle forgot password action
+                        },
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -185,9 +186,15 @@ class _LoginState extends State<Login> {
           int user_id = data['user_id'];
           print(token);
           await UserIdStorage.saveUserId(user_id);
-          CommonHelper.animatedSnackBar(
-              context, data['message'], AnimatedSnackBarType.success);
-          Navigator.pushNamed(context, '/dashboard');
+          if (data['email'] == 'banteilangnongsiej04@gmail.com') {
+            CommonHelper.animatedSnackBar(
+                context, data['message'], AnimatedSnackBarType.success);
+            Navigator.pushNamed(context, '/admindashboard');
+          } else {
+            CommonHelper.animatedSnackBar(
+                context, data['message'], AnimatedSnackBarType.success);
+            Navigator.pushNamed(context, '/dashboard');
+          }
         } else if (response.statusCode == 404) {
           CommonHelper.animatedSnackBar(
               context, data['message'], AnimatedSnackBarType.error);
@@ -198,7 +205,11 @@ class _LoginState extends State<Login> {
           Provider.of<UserProvider>(context, listen: false)
               .setUser_id(data['id']);
           // ignore: use_build_context_synchronously
-          Navigator.pushNamed(context, '/dashboard');
+          if (data['email'] == 'banteilangnongsiej04@gmail.com') {
+            Navigator.pushNamed(context, '/admindashboard');
+          } else {
+            Navigator.pushNamed(context, '/dashboard');
+          }
         }
       } catch (e) {
         print(' $e');

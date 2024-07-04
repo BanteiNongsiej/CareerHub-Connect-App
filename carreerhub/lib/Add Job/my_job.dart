@@ -38,11 +38,13 @@ class _AddJobScreenState extends State<AddJobScreen> {
         }
         jobList = dataList
             .map((data) => Job(
+                  id: data['id'] ?? '',
                   title: data['title'] ?? '',
                   name: data['name'] ?? '',
                   address: data['address'] ?? '',
                   job_type: data['job_type'] ?? '',
                   min_salary: data['min_salary'] ?? '',
+                  max_salary: data['max_salary'] ?? '',
                   description: data['description'] ?? '',
                 ))
             .toList();
@@ -139,19 +141,23 @@ class _AddJobScreenState extends State<AddJobScreen> {
 }
 
 class Job {
+  final int id;
   final String title;
   final String name;
   final String address;
   final String job_type;
   final String min_salary;
+  final String max_salary;
   final String description;
 
   Job({
+    required this.id,
     required this.title,
     required this.name,
     required this.address,
     required this.job_type,
     required this.min_salary,
+    required this.max_salary,
     required this.description,
   });
 }
@@ -174,7 +180,9 @@ class _JobCardState extends State<JobCard> {
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(20)),
-        onTap: () => {},
+        onTap: () => {
+          Navigator.pushNamed(context, '/job_application',arguments: widget.job.id)
+        },
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Stack(
@@ -215,7 +223,10 @@ class _JobCardState extends State<JobCard> {
                       Container(
                         color: const Color.fromARGB(255, 227, 225, 216),
                         padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Text('\u{20B9}${widget.job.min_salary}'),
+                        child: widget.job.max_salary.isEmpty
+                            ? Text('\u{20B9}${widget.job.min_salary}')
+                            : Text(
+                                '\u{20B9}${widget.job.min_salary} - \u{20B9}${widget.job.max_salary}'),
                       ),
                     ],
                   ),
@@ -224,21 +235,6 @@ class _JobCardState extends State<JobCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isBooked = !isBooked;
-                  });
-                },
-                icon: FaIcon(
-                  isBooked
-                      ? FontAwesomeIcons.solidBookmark
-                      : FontAwesomeIcons.bookmark,
-                  color: isBooked
-                      ? const Color.fromARGB(255, 94, 90, 90)
-                      : const Color.fromARGB(255, 94, 90, 90),
-                ),
               ),
             ],
           ),

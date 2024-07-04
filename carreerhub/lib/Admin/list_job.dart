@@ -1,19 +1,17 @@
 import 'dart:convert';
-import 'package:carreerhub/Home/job_details.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-class HomePageScreen extends StatefulWidget {
-  const HomePageScreen({Key? key});
+class ListJobs extends StatefulWidget {
+  const ListJobs({Key? key});
 
   @override
-  State<HomePageScreen> createState() => _HomePageScreenState();
+  State<ListJobs> createState() => _ListJobsState();
 }
 
-class _HomePageScreenState extends State<HomePageScreen> {
+class _ListJobsState extends State<ListJobs> {
   List<Map<String, dynamic>> dataList = []; // List to store data
   List<Job> jobList = [];
   List<Job> filteredJobList = []; // List to store filtered data
@@ -47,9 +45,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 address: data['address'] ?? '',
                 job_type: data['job_type'] ?? '',
                 min_salary: data['min_salary'] ?? '',
-                max_salary: data['max_salary'] ?? '',
-                description: data['description'] ?? '',
-                bookmark: data['bookmark']))
+                description: data['description'] ?? ''))
             .toList();
         filteredJobList =
             List.from(jobList); // Initialize filteredJobList with jobList
@@ -74,7 +70,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 job.address.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.job_type.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.min_salary.toLowerCase().contains(keyword.toLowerCase()) ||
-                job.max_salary.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.description.toLowerCase().contains(keyword.toLowerCase()))
             .toList();
       }
@@ -85,7 +80,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Padding(
           padding: EdgeInsets.symmetric(horizontal: 10.0), // Add padding here
@@ -145,9 +139,7 @@ class Job {
   final String address;
   final String job_type;
   final String min_salary;
-  final String max_salary;
   final String description;
-  int bookmark = 0;
 
   Job({
     required this.id,
@@ -156,9 +148,7 @@ class Job {
     required this.address,
     required this.job_type,
     required this.min_salary,
-    required this.max_salary,
     required this.description,
-    required this.bookmark,
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
@@ -169,9 +159,7 @@ class Job {
         address: json['address'] ?? '',
         job_type: json['job_type'] ?? '',
         min_salary: json['min_salary'] ?? '',
-        max_salary: json['max_salary'] ?? '',
-        description: json['description'] ?? '',
-        bookmark: json['bookmark'] ?? 0);
+        description: json['description'] ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -182,9 +170,7 @@ class Job {
       'address': address,
       'job_type': job_type,
       'min_salary': min_salary,
-      'max_salary': max_salary,
       'description': description,
-      'bookmark': bookmark
     };
   }
 }
@@ -199,12 +185,6 @@ class JobCard extends StatefulWidget {
 }
 
 class _JobCardState extends State<JobCard> {
-  bool isBooked = false;
-
-  String generateJobKey(Job job) {
-    return "bookmarked_job_${job.title}_${job.name}";
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -214,7 +194,7 @@ class _JobCardState extends State<JobCard> {
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(20)),
         onTap: () => {
-          Navigator.pushNamed(context, '/jobdetails', arguments: widget.job.id)
+          Navigator.pushNamed(context, '/listjobdetails', arguments: widget.job.id)
         },
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -263,10 +243,7 @@ class _JobCardState extends State<JobCard> {
                       Container(
                         color: const Color.fromARGB(255, 227, 225, 216),
                         padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: widget.job.max_salary.isEmpty
-                            ? Text('\u{20B9}${widget.job.min_salary}')
-                            : Text(
-                                '\u{20B9}${widget.job.min_salary} - \u{20B9}${widget.job.max_salary}'),
+                        child: Text('\u{20B9}${widget.job.min_salary}'),
                       ),
                     ],
                   ),
@@ -276,59 +253,15 @@ class _JobCardState extends State<JobCard> {
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () {
-                  checkBookmark();
-                },
-                icon: FaIcon(
-                  widget.job.bookmark == 1
-                      ? FontAwesomeIcons.solidBookmark
-                      : FontAwesomeIcons.bookmark,
-                  color: widget.job.bookmark == 1
-                      ? const Color.fromARGB(255, 94, 90, 90)
-                      : const Color.fromARGB(255, 94, 90, 90),
-                ),
-              ),
+              
             ],
           ),
         ),
       ),
     );
   }
-
-  void checkBookmark() async {
-    String isbookmark = 'N';
-    setState(() {
-      if (widget.job.bookmark == 0) {
-        widget.job.bookmark = 1;
-        isbookmark = 'Y';
-      } else {
-        widget.job.bookmark = 0;
-        isbookmark = 'N';
-      }
-    });
-
-    print(widget.job.id);
-    String url =
-        'http://10.0.3.2:8000/api/job/updateBookmark/${widget.job.id}/$isbookmark';
-    await http.get(Uri.parse(url));
   }
 
-  // Future<void> Bookmark(Job job) async {
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   final String encodedJob = jsonEncode(job.toJson());
-  //   // Use a key that combines a prefix and job title for better organization
-  //   final String key = generateJobKey(job);
-  //   await prefs.setString(key, encodedJob);
-  //   //print(Bookmark(job.title));
-  // }
-
-  // Future<void> unBookmark(Job job) async {
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   final String key = generateJobKey(job);
-  //   await prefs.remove(key);
-  // }
-}
 
 class JobCardPlaceholder extends StatefulWidget {
   @override

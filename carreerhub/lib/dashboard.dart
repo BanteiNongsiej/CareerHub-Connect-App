@@ -1,8 +1,7 @@
-import 'package:carreerhub/Add%20Job/add_job.dart';
+import 'package:carreerhub/Add%20Job/my_job.dart';
 import 'package:carreerhub/GetuserId.dart';
 import 'package:carreerhub/chatbox.dart';
 import 'package:carreerhub/Home/home_page.dart';
-import 'package:carreerhub/Add%20Job/job_post_form.dart';
 import 'package:carreerhub/notification.dart';
 import 'package:carreerhub/Profile/profile.dart';
 import 'package:carreerhub/token.dart';

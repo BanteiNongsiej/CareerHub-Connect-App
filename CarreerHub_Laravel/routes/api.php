@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\ApplicationRecordController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\UserInfoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,13 +37,20 @@ Route::controller(UserInfoController::class)->group(function(){
     Route::delete('/dashboard/user/deleteUser/{id}', 'deleteUser');
 });
 
+Route::controller(ResumeController::class)->group(function(){
+    Route::post('/dashboard/storeResumeFile/{user_id}','store');
+    Route::put('/dashboard/updateResumeFile/{user_id}','update');
+    Route::delete('/dashboard/deleteResumeFile/{user_id}','delete');
+    Route::get('/dashboard/ViewResume/{user_id}','view');
+});
+
 Route::controller(JobController::class)->group(function(){
     Route::post('/dashboard/job/insert/{user_id}','insert');
     Route::get('/dashboard/job/show/{job_id}','show');
     Route::get('/dashboard/job/findjob/{user_id}','findjob');
     Route::get('/dashboard/job/showalljob','showalljob');
     Route::put('dashboard/job/update/job','update');
-    Route::delete('dashboard/job/delete/job','delete');
+    Route::delete('dashboard/job/delete/{job_id}','delete');
 
     Route::get('/job/updateBookmark/{job}/{status}','updateBookmark');
 });
@@ -59,4 +68,10 @@ Route::controller(EducationController::class)->group(function(){
 
 Route::controller(CertificationController::class)->group(function(){
     Route::post('/dashboard/resume/InsertCertification/{user_id}','insert');
+});
+
+Route::controller(ApplicationRecordController::class)->group(function(){
+    Route::post('/dashboard/job/applyjob/{candidate_id}/{job_id}','store');
+    Route::get('/dashboard/job/check-application/{candidate_id}/{job_id}','checkApplication');
+    Route::get('/dashboard/job/view-application/{candidate_id}/{job_id}','viewApplication');
 });

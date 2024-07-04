@@ -25,7 +25,7 @@ class _JobPostState extends State<JobPost> {
   }
 
   final job_titleController = TextEditingController();
-  final company_nameControlller = TextEditingController();
+  final nameControlller = TextEditingController();
   final countryController = TextEditingController();
   final stateController = TextEditingController();
   final cityController = TextEditingController();
@@ -36,7 +36,7 @@ class _JobPostState extends State<JobPost> {
   final no_peopleController = TextEditingController();
   final experience_reqController = TextEditingController();
   final qualification_reqController = TextEditingController();
-  //final skillController = TextEditingController();
+  final skillsController = TextEditingController();
   final descriptionController = TextEditingController();
   final min_salaryController = TextEditingController();
   final max_salaryController = TextEditingController();
@@ -44,7 +44,7 @@ class _JobPostState extends State<JobPost> {
 
   // Data fields for users
   String job_title = '';
-  String company_name = '';
+  String name = '';
   String city = '';
   String street = '';
   String state = '';
@@ -59,7 +59,7 @@ class _JobPostState extends State<JobPost> {
   String experience_req = '';
   String qualification_req = '';
   String description = '';
-  //String skill = '';
+  String skills = '';
 
   final Map<String, List<String>> states = {
     'India': [
@@ -68,6 +68,7 @@ class _JobPostState extends State<JobPost> {
       'Assam',
       'Bihar',
       'Chhattisgarh',
+      'Delhi',
       'Goa',
       'Gujarat',
       'Haryana',
@@ -108,6 +109,16 @@ class _JobPostState extends State<JobPost> {
       'Assam': ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat'],
       'Bihar': ['Patna', 'Gaya', 'Bhagalpur', 'Muzaffarpur'],
       'Chhattisgarh': ['Raipur', 'Bhilai', 'Korba', 'Bilaspur'],
+      'Delhi': [
+        'New Delhi',
+        'Old Delhi',
+        'Noida',
+        'Gurgaon',
+        'Faridabad',
+        'Ghaziabad',
+        'Bahadurgarh',
+        'Sonepat'
+      ],
       'Goa': ['Panaji', 'Margao', 'Vasco da Gama'],
       'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot'],
       'Haryana': ['Gurugram', 'Faridabad', 'Panipat', 'Ambala'],
@@ -125,7 +136,7 @@ class _JobPostState extends State<JobPost> {
         'Solapur'
       ],
       'Manipur': ['Imphal', 'Churachandpur', 'Thoubal'],
-      'Meghalaya': ['Shillong', 'Tura', 'Nongpoh'],
+      'Meghalaya': ['Shillong', 'Tura', 'Nongpoh','Jowai'],
       'Mizoram': ['Aizawl', 'Lunglei', 'Champhai'],
       'Nagaland': ['Kohima', 'Dimapur', 'Mokokchung'],
       'Odisha': ['Bhubaneswar', 'Cuttack', 'Rourkela', 'Puri'],
@@ -293,15 +304,15 @@ class _JobPostState extends State<JobPost> {
             ),
             SizedBox(height: 16),
             TextFormField(
-                controller: company_nameControlller,
-                keyboardType: TextInputType.name,
+                controller: nameControlller,
+                keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   labelText: 'Company Name',
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) {
                   setState(() {
-                    company_name = value;
+                    name = value;
                   });
                 }),
             SizedBox(height: 16),
@@ -337,7 +348,7 @@ class _JobPostState extends State<JobPost> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter Country name';
+                  return 'Please enter state name';
                 }
                 return null;
               },
@@ -377,7 +388,7 @@ class _JobPostState extends State<JobPost> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter Country name';
+                  return 'Please enter City name';
                 }
                 return null;
               },
@@ -422,7 +433,7 @@ class _JobPostState extends State<JobPost> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter Country name';
+                  return 'Please enter street name';
                 }
                 return null;
               },
@@ -442,7 +453,7 @@ class _JobPostState extends State<JobPost> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter Country name';
+                  return 'Please enter pincode number';
                 }
                 return null;
               },
@@ -508,7 +519,7 @@ class _JobPostState extends State<JobPost> {
                 labelText: 'Shift Type *',
                 border: OutlineInputBorder(),
               ),
-              items: ['Day', 'Night', 'Morning'].map((type) {
+              items: ['Day', 'Night', 'Morning', 'Evening'].map((type) {
                 return DropdownMenuItem<String>(
                   value: type,
                   child: Text(type),
@@ -575,20 +586,20 @@ class _JobPostState extends State<JobPost> {
               },
             ),
             SizedBox(height: 16),
-            // TextFormField(
-            //   controller: skillController,
-            //   keyboardType: TextInputType.name,
-            //   decoration: InputDecoration(
-            //     labelText: 'Skills Required',
-            //     border: OutlineInputBorder(),
-            //   ),
-            //   onChanged: (value) {
-            //     setState(() {
-            //       skill = value;
-            //     });
-            //   },
-            // ),
-            // SizedBox(height: 16),
+            TextFormField(
+              controller: skillsController,
+              keyboardType: TextInputType.name,
+              decoration: InputDecoration(
+                labelText: 'Skills Required',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  skills = value;
+                });
+              },
+            ),
+            SizedBox(height: 16),
             TextFormField(
               controller: descriptionController,
               maxLines: null,
@@ -659,6 +670,7 @@ class _JobPostState extends State<JobPost> {
               SizedBox(height: 20),
               if (selectedPaymentMethod == 'Range') ...[
                 TextFormField(
+                  controller: min_salaryController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Minimum Salary',
@@ -677,7 +689,7 @@ class _JobPostState extends State<JobPost> {
                 SizedBox(height: 16),
                 TextFormField(
                   keyboardType: TextInputType.number,
-                  controller: min_salaryController,
+                  controller: max_salaryController,
                   decoration: InputDecoration(
                     labelText: 'Maximum Salary',
                     border: OutlineInputBorder(),
@@ -709,7 +721,6 @@ class _JobPostState extends State<JobPost> {
                   },
                   onChanged: (value) {
                     min_salary = value;
-                    max_salary = value;
                   },
                 ),
               SizedBox(height: 16),
@@ -761,7 +772,7 @@ class _JobPostState extends State<JobPost> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             Text('Job Title: $job_title'),
-            Text('Company Name: $company_name'),
+            Text('Company Name: $name'),
             Text('Country: $country'),
             Text('State: $state'),
             Text('City: $city'),
@@ -776,7 +787,7 @@ class _JobPostState extends State<JobPost> {
             Text('Number of People to Hire: $no_people'),
             Text('Number of Years of Experience: $experience_req'),
             Text('Qualifications Required: $qualification_req'),
-            //Text('Skills Required: $skill'),
+            Text('Skills Required: $skills'),
             Text('Job Description: $description'),
             SizedBox(height: 20),
             Text('Salary Details:',
@@ -802,12 +813,14 @@ class _JobPostState extends State<JobPost> {
           actions: [
             TextButton(
               onPressed: () {
+                print(skills);
                 Navigator.of(context).pop();
               },
               child: Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
+                
                 post();
               },
               child: Text('Submit'),
@@ -830,7 +843,7 @@ class _JobPostState extends State<JobPost> {
 
       // Retrieve form data
       final title = job_titleController.text;
-      final company_name = company_nameControlller.text;
+      final name = nameControlller.text;
       final country = countryController.text;
       final state = stateController.text;
       final city = cityController.text;
@@ -842,6 +855,7 @@ class _JobPostState extends State<JobPost> {
       final description = descriptionController.text;
       final min_salary = min_salaryController.text;
       final max_salary = max_salaryController.text;
+      final skills = skillsController.text;
       // final job_type = job_typeController.text; // Commented out in your code
       // final shift_type = shift_typeController.text; // Commented out in your code
       // final salary_period = salary_periodController.text; // Commented out in your code
@@ -852,7 +866,7 @@ class _JobPostState extends State<JobPost> {
           : 'http://localhost:8000/api/dashboard/job/insert/$user_id';
       print('Request body: ${jsonEncode({
             'title': title,
-            'company_name': company_name,
+            'name': name,
             'country': country,
             'state': state,
             'city': city,
@@ -863,6 +877,7 @@ class _JobPostState extends State<JobPost> {
             'no_people': no_people,
             'experience_req': experience_req,
             'qualification_req': qualification_req,
+            'skills': skills,
             'description': description,
             'min_salary': min_salary,
             'max_salary': max_salary,
@@ -877,17 +892,18 @@ class _JobPostState extends State<JobPost> {
         },
         body: jsonEncode({
           'title': title,
-          'company_name': company_name,
+          'name': name,
           'country': country,
           'state': state,
           'city': city,
           'street': street,
           'pincode': pincode,
           'job_type': job_type, // Make sure this is correctly defined
-          // 'shift_type': shift_type, // Make sure this is correctly defined
+          'shift_type': shift_type, // Make sure this is correctly defined
           'no_people': no_people,
           'experience_req': experience_req,
           'qualification_req': qualification_req,
+          'skills': skills,
           'description': description,
           'min_salary': min_salary,
           'max_salary': max_salary,

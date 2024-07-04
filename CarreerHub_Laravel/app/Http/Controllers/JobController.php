@@ -76,7 +76,7 @@ class JobController extends Controller
         }
     }
     public function getAddress($job) {
-        $addressParts = [$job->street,$job->pincode, $job->city, $job->pincode,$job->city,$job->state, $job->country ];
+        $addressParts = [$job->street,$job->pincode, $job->city,$job->city,$job->state, $job->country ];
         return implode(', ', array_filter($addressParts));
     }
     
@@ -147,13 +147,15 @@ class JobController extends Controller
             ], 200);
         }
     }
-    public function delete(Job $job){
+    public function delete($job_id){
         try{
+            $job=Job::find($job_id);
             $job->delete();
             return response()->json([
                 "data"=>$job,
-                "message"=>"Job deleted successfully"
-            ],201);
+                "message"=>"Job deleted successfully",
+                "statuscode"
+            ],200);
         }catch(Exception $e){
             return response()->json([
                 "message"=>"Job deleted successfully"

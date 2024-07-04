@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:carreerhub/GetuserId.dart';
@@ -31,6 +32,7 @@ class _BuildResumeState extends State<BuildResume> {
   final cityController = TextEditingController();
   final streetController = TextEditingController();
   final pincodeController = TextEditingController();
+  final mobile_numberController = TextEditingController();
 
   // Data fields for users
   String first_name = '';
@@ -43,6 +45,7 @@ class _BuildResumeState extends State<BuildResume> {
   String state = '';
   String country = 'India';
   String pincode = '';
+  String mobile_number = '';
 
   // Data fields for education
   final education_level_nameController = TextEditingController();
@@ -63,10 +66,10 @@ class _BuildResumeState extends State<BuildResume> {
   String school_state = '';
   String school_city = '';
   String grade = '';
-  String s_start_month = '';
-  String s_finish_month = '';
-  String s_start_year = '';
-  String s_finish_year = '';
+  String? s_start_month;
+  String? s_finish_month;
+  String? s_start_year;
+  String? s_finish_year;
   String skill = '';
 
   // Data fields for experience
@@ -82,15 +85,117 @@ class _BuildResumeState extends State<BuildResume> {
   String company_name = '';
   String c_state = '';
   String c_city = '';
-  String j_description = '';
-  String j_start_month = '';
-  String j_finish_month = '';
-  String j_start_year = '';
-  String j_finish_year = '';
+  String c_description = '';
+  String? c_start_month;
+  String? c_finish_month;
+  String? c_start_year;
+  String? c_finish_year;
 
   // Data fields for certification
   final certification_nameController = TextEditingController();
   String Certification_name = '';
+
+  String? yearError;
+
+  final Map<String, List<String>> states = {
+    'India': [
+      'Andhra Pradesh',
+      'Arunachal Pradesh',
+      'Assam',
+      'Bihar',
+      'Chhattisgarh',
+      'Delhi',
+      'Goa',
+      'Gujarat',
+      'Haryana',
+      'Himachal Pradesh',
+      'Jharkhand',
+      'Karnataka',
+      'Kerala',
+      'Madhya Pradesh',
+      'Maharashtra',
+      'Manipur',
+      'Meghalaya',
+      'Mizoram',
+      'Nagaland',
+      'Odisha',
+      'Punjab',
+      'Rajasthan',
+      'Sikkim',
+      'Tamil Nadu',
+      'Telangana',
+      'Tripura',
+      'Uttar Pradesh',
+      'Uttarakhand',
+      'West Bengal'
+    ],
+  };
+  final Map<String, Map<String, List<String>>> cities = {
+    'India': {
+      'Andhra Pradesh': [
+        'Visakhapatnam',
+        'Vijayawada',
+        'Guntur',
+        'Nellore',
+        'Kurnool',
+        'Rajahmundry',
+        'Tirupati'
+      ],
+      'Arunachal Pradesh': ['Itanagar', 'Tawang', 'Pasighat'],
+      'Assam': ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat'],
+      'Bihar': ['Patna', 'Gaya', 'Bhagalpur', 'Muzaffarpur'],
+      'Chhattisgarh': ['Raipur', 'Bhilai', 'Korba', 'Bilaspur'],
+      'Delhi': [
+        'New Delhi',
+        'Old Delhi',
+        'Noida',
+        'Gurgaon',
+        'Faridabad',
+        'Ghaziabad',
+        'Bahadurgarh',
+        'Sonepat'
+      ],
+      'Goa': ['Panaji', 'Margao', 'Vasco da Gama'],
+      'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot'],
+      'Haryana': ['Gurugram', 'Faridabad', 'Panipat', 'Ambala'],
+      'Himachal Pradesh': ['Shimla', 'Dharamshala', 'Manali'],
+      'Jharkhand': ['Ranchi', 'Jamshedpur', 'Dhanbad', 'Bokaro'],
+      'Karnataka': ['Bengaluru', 'Mysuru', 'Mangaluru', 'Hubballi'],
+      'Kerala': ['Thiruvananthapuram', 'Kochi', 'Kozhikode', 'Thrissur'],
+      'Madhya Pradesh': ['Bhopal', 'Indore', 'Gwalior', 'Jabalpur'],
+      'Maharashtra': [
+        'Mumbai',
+        'Pune',
+        'Nagpur',
+        'Nashik',
+        'Aurangabad',
+        'Solapur'
+      ],
+      'Manipur': ['Imphal', 'Churachandpur', 'Thoubal'],
+      'Meghalaya': ['Shillong', 'Tura', 'Nongpoh'],
+      'Mizoram': ['Aizawl', 'Lunglei', 'Champhai'],
+      'Nagaland': ['Kohima', 'Dimapur', 'Mokokchung'],
+      'Odisha': ['Bhubaneswar', 'Cuttack', 'Rourkela', 'Puri'],
+      'Punjab': ['Chandigarh', 'Ludhiana', 'Amritsar', 'Jalandhar'],
+      'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota'],
+      'Sikkim': ['Gangtok', 'Namchi', 'Geyzing'],
+      'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli'],
+      'Telangana': ['Hyderabad', 'Warangal', 'Nizamabad', 'Khammam'],
+      'Tripura': ['Agartala', 'Udaipur', 'Dharmanagar'],
+      'Uttar Pradesh': [
+        'Lucknow',
+        'Kanpur',
+        'Ghaziabad',
+        'Agra',
+        'Varanasi',
+        'Meerut',
+        'Prayagraj',
+        'Noida'
+      ],
+      'Uttarakhand': ['Dehradun', 'Haridwar', 'Roorkee'],
+      'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol'],
+    },
+  };
 
   void nextPage() {
     if (_currentPage < 3) {
@@ -156,7 +261,8 @@ class _BuildResumeState extends State<BuildResume> {
           if (_currentPage == 3)
             ElevatedButton(
               onPressed: () => {
-                Navigator.pushNamed(context, '/reviewresume')
+                submitForm(),
+                Navigator.pushNamed(context, '/profile')
               }, //_submitForm,
               child: Text('Review'),
             ),
@@ -188,6 +294,8 @@ class _BuildResumeState extends State<BuildResume> {
           children: [
             Text('User Details', style: TextStyle(fontSize: 20)),
             TextFormField(
+              controller: firstnameController,
+              keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 labelText: 'First Name',
                 border: OutlineInputBorder(),
@@ -196,7 +304,7 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
-              controller: firstnameController,
+              controller: middlenameController,
               keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Middle Name',
@@ -206,7 +314,7 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
-              controller: middlenameController,
+              controller: lastnameController,
               keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Last Name',
@@ -251,6 +359,16 @@ class _BuildResumeState extends State<BuildResume> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: mobile_numberController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Mobile Number',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) => mobile_number = value,
+            ),
+            SizedBox(height: 16),
+            TextFormField(
               controller: countryController,
               keyboardType: TextInputType.name,
               decoration: InputDecoration(
@@ -270,24 +388,86 @@ class _BuildResumeState extends State<BuildResume> {
               },
             ),
             SizedBox(height: 16),
-            TextFormField(
-              controller: stateController,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: 'State',
-                border: OutlineInputBorder(),
+            TypeAheadFormField<String>(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: stateController,
+                decoration: InputDecoration(
+                  labelText: 'State',
+                  hintText: 'Enter State',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              onChanged: (value) => country = value,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter state name';
+                }
+                return null;
+              },
+              suggestionsCallback: (pattern) {
+                return states[country]!
+                    .where((state) =>
+                        state.toLowerCase().contains(pattern.toLowerCase()))
+                    .toList();
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                );
+              },
+              onSuggestionSelected: (suggestion) {
+                stateController.text = suggestion;
+                setState(() {
+                  state = suggestion;
+                  cityController
+                      .clear(); // Clear the city when a new state is selected
+                });
+              },
+              noItemsFoundBuilder: (context) => Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('No state found.'),
+              ),
             ),
             SizedBox(height: 16),
-            TextFormField(
-              controller: cityController,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: 'City',
-                border: OutlineInputBorder(),
+            TypeAheadFormField<String>(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: cityController,
+                decoration: InputDecoration(
+                  labelText: 'City',
+                  hintText: 'Enter City',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              onChanged: (value) => country = value,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter Country name';
+                }
+                return null;
+              },
+              suggestionsCallback: (pattern) {
+                if (state.isNotEmpty && cities[country]!.containsKey(state)) {
+                  return cities[country]![state]!
+                      .where((city) =>
+                          city.toLowerCase().contains(pattern.toLowerCase()))
+                      .toList();
+                } else {
+                  return [];
+                }
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                );
+              },
+              onSuggestionSelected: (suggestion) {
+                cityController.text = suggestion;
+                setState(() {
+                  city = suggestion;
+                });
+              },
+              noItemsFoundBuilder: (context) => Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('No city found.'),
+              ),
             ),
             SizedBox(height: 16),
             TextFormField(
@@ -316,6 +496,36 @@ class _BuildResumeState extends State<BuildResume> {
   }
 
   Widget _buildEducationDetailsPage() {
+    List<String> months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    List<String> years = List<String>.generate(
+        50, (index) => (DateTime.now().year - index).toString());
+    void validateYears() {
+      setState(() {
+        if (s_start_year != null && s_finish_year != null) {
+          if (int.parse(s_start_year!) > int.parse(s_finish_year!)) {
+            yearError = 'Start year cannot be greater than finish year';
+          } else {
+            yearError = null;
+          }
+        } else {
+          yearError = null;
+        }
+      });
+    }
+
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(16),
@@ -359,19 +569,53 @@ class _BuildResumeState extends State<BuildResume> {
               keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'School State',
+                hintText: 'Enter state',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) => school_state = value,
             ),
             SizedBox(height: 16),
-            TextFormField(
-              controller: school_cityController,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                labelText: 'School City',
-                border: OutlineInputBorder(),
+            TypeAheadFormField<String>(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: school_cityController,
+                decoration: InputDecoration(
+                  labelText: 'City',
+                  hintText: 'Enter City',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              onChanged: (value) => school_city = value,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter City name';
+                }
+                return null;
+              },
+              suggestionsCallback: (pattern) {
+                if (school_state.isNotEmpty &&
+                    cities[country]!.containsKey(school_state)) {
+                  return cities[country]![school_state]!
+                      .where((city) =>
+                          city.toLowerCase().contains(pattern.toLowerCase()))
+                      .toList();
+                } else {
+                  return [];
+                }
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                );
+              },
+              onSuggestionSelected: (suggestion) {
+                school_cityController.text = suggestion;
+                setState(() {
+                  city = suggestion;
+                });
+              },
+              noItemsFoundBuilder: (context) => Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('No city found.'),
+              ),
             ),
             SizedBox(height: 16),
             TextFormField(
@@ -387,23 +631,38 @@ class _BuildResumeState extends State<BuildResume> {
             Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    controller: s_start_monthController,
+                  child: DropdownButtonFormField<String>(
                     decoration: InputDecoration(
                       labelText: 'Start Month',
                       border: OutlineInputBorder(),
                     ),
-                    onChanged: (value) => s_start_month = value,
+                    value: s_start_month,
+                    onChanged: (value) =>
+                        setState(() => s_start_month = value!),
+                    items: months.map((String month) {
+                      return DropdownMenuItem<String>(
+                        value: month,
+                        child: Text(month),
+                      );
+                    }).toList(),
                   ),
                 ),
                 SizedBox(width: 16),
                 Expanded(
-                  child: TextFormField(
+                  child: DropdownButtonFormField<String>(
                     decoration: InputDecoration(
                       labelText: 'Finish Month',
                       border: OutlineInputBorder(),
                     ),
-                    onChanged: (value) => s_finish_month = value,
+                    value: s_finish_month,
+                    onChanged: (value) =>
+                        setState(() => s_finish_month = value!),
+                    items: months.map((String month) {
+                      return DropdownMenuItem<String>(
+                        value: month,
+                        child: Text(month),
+                      );
+                    }).toList(),
                   ),
                 ),
               ],
@@ -412,28 +671,57 @@ class _BuildResumeState extends State<BuildResume> {
             Row(
               children: [
                 Expanded(
-                  child: TextFormField(
+                  child: DropdownButtonFormField<String>(
                     decoration: InputDecoration(
                       labelText: 'Start Year',
                       border: OutlineInputBorder(),
                     ),
-                    onChanged: (value) => s_start_year = value,
+                    value: s_start_year,
+                    onChanged: (value) => setState(() {
+                      s_start_year = value!;
+                      validateYears();
+                    }),
+                    items: years.map((String year) {
+                      return DropdownMenuItem<String>(
+                        value: year,
+                        child: Text(year),
+                      );
+                    }).toList(),
                   ),
                 ),
                 SizedBox(width: 16),
                 Expanded(
-                  child: TextFormField(
+                  child: DropdownButtonFormField<String>(
                     decoration: InputDecoration(
                       labelText: 'Finish Year',
                       border: OutlineInputBorder(),
                     ),
-                    onChanged: (value) => s_finish_year = value,
+                    value: s_finish_year,
+                    onChanged: (value) => setState(() {
+                      s_finish_year = value!;
+                      validateYears();
+                    }),
+                    items: years.map((String year) {
+                      return DropdownMenuItem<String>(
+                        value: year,
+                        child: Text(year),
+                      );
+                    }).toList(),
                   ),
                 ),
               ],
             ),
+            if (yearError != null) ...[
+              SizedBox(height: 8),
+              Text(
+                yearError!,
+                style: TextStyle(color: Colors.red),
+              ),
+            ],
             SizedBox(height: 16),
             TextFormField(
+              controller: skillController,
+              keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 labelText: 'Skill',
                 border: OutlineInputBorder(),
@@ -447,6 +735,37 @@ class _BuildResumeState extends State<BuildResume> {
   }
 
   Widget _buildJobExperiencePage() {
+    List<String> months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+
+    List<String> years = List<String>.generate(
+        50, (index) => (DateTime.now().year - index).toString());
+    void validateYears() {
+      setState(() {
+        if (c_start_year != null && c_finish_year != null) {
+          if (int.parse(c_start_year!) > int.parse(c_finish_year!)) {
+            yearError = 'Start year cannot be greater than finish year';
+          } else {
+            yearError = null;
+          }
+        } else {
+          yearError = null;
+        }
+      });
+    }
+
     return Padding(
       padding: EdgeInsets.all(16),
       child: Column(
@@ -474,35 +793,81 @@ class _BuildResumeState extends State<BuildResume> {
             onChanged: (value) => c_state = value,
           ),
           SizedBox(height: 16),
-          TextFormField(
-            controller: c_cityController,
-            keyboardType: TextInputType.name,
-            decoration: InputDecoration(
-              labelText: 'City',
-              border: OutlineInputBorder(),
+          TypeAheadFormField<String>(
+            textFieldConfiguration: TextFieldConfiguration(
+              controller: c_cityController,
+              decoration: InputDecoration(
+                labelText: 'City',
+                hintText: 'Enter City',
+                border: OutlineInputBorder(),
+              ),
             ),
-            onChanged: (value) => c_city = value,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter City name';
+              }
+              return null;
+            },
+            suggestionsCallback: (pattern) {
+              if (c_state.isNotEmpty && cities[country]!.containsKey(c_state)) {
+                return cities[country]![c_state]!
+                    .where((city) =>
+                        city.toLowerCase().contains(pattern.toLowerCase()))
+                    .toList();
+              } else {
+                return [];
+              }
+            },
+            itemBuilder: (context, suggestion) {
+              return ListTile(
+                title: Text(suggestion),
+              );
+            },
+            onSuggestionSelected: (suggestion) {
+              c_cityController.text = suggestion;
+              setState(() {
+                city = suggestion;
+              });
+            },
+            noItemsFoundBuilder: (context) => Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('No city found.'),
+            ),
           ),
           SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: TextFormField(
+                child: DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Start Month',
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (value) => j_start_month = value,
+                  value: c_start_month,
+                  onChanged: (value) => setState(() => c_start_month = value!),
+                  items: months.map((String month) {
+                    return DropdownMenuItem<String>(
+                      value: month,
+                      child: Text(month),
+                    );
+                  }).toList(),
                 ),
               ),
               SizedBox(width: 16),
               Expanded(
-                child: TextFormField(
+                child: DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Finish Month',
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (value) => j_finish_month = value,
+                  value: c_finish_month,
+                  onChanged: (value) => setState(() => c_finish_month = value!),
+                  items: months.map((String month) {
+                    return DropdownMenuItem<String>(
+                      value: month,
+                      child: Text(month),
+                    );
+                  }).toList(),
                 ),
               ),
             ],
@@ -511,26 +876,53 @@ class _BuildResumeState extends State<BuildResume> {
           Row(
             children: [
               Expanded(
-                child: TextFormField(
+                child: DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Start Year',
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (value) => j_start_year = value,
+                  value: c_start_year,
+                  onChanged: (value) => setState(() {
+                    c_start_year = value!;
+                    validateYears();
+                  }),
+                  items: years.map((String year) {
+                    return DropdownMenuItem<String>(
+                      value: year,
+                      child: Text(year),
+                    );
+                  }).toList(),
                 ),
               ),
               SizedBox(width: 16),
               Expanded(
-                child: TextFormField(
+                child: DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Finish Year',
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (value) => j_finish_year = value,
+                  value: c_finish_year,
+                  onChanged: (value) => setState(() {
+                    s_finish_year = value!;
+                    validateYears();
+                  }),
+                  items: years.map((String year) {
+                    return DropdownMenuItem<String>(
+                      value: year,
+                      child: Text(year),
+                    );
+                  }).toList(),
                 ),
               ),
             ],
           ),
+          if (yearError != null) ...[
+            SizedBox(height: 8),
+            Text(
+              yearError!,
+              style: TextStyle(color: Colors.red),
+            ),
+          ],
           SizedBox(height: 16),
           TextFormField(
             controller: j_descriptionController,
@@ -539,7 +931,7 @@ class _BuildResumeState extends State<BuildResume> {
               labelText: 'Job Description',
               border: OutlineInputBorder(),
             ),
-            onChanged: (value) => j_description = value,
+            onChanged: (value) => c_description = value,
           ),
         ],
       ),
@@ -569,55 +961,98 @@ class _BuildResumeState extends State<BuildResume> {
     );
   }
 
-  void _submitForm() async {
+  void submitForm() async {
     try {
       await getUserId();
-      final first_name = firstnameController;
-      final middle_name = middlenameController;
-      final last_name = lastnameController;
-      final dob = dobController;
-      final country = countryController;
-      final state = stateController;
-      final city = cityController;
-      final street = streetController;
-      final pincode = pincodeController;
+      final userData = {
+        'first_name': firstnameController.text,
+        'middle_name': middlenameController.text,
+        'last_name': lastnameController.text,
+        'dob': dobController.text,
+        'gender': genderController.text,
+        'Mobile Number': mobile_numberController,
+        'street': streetController.text,
+        'pincode': pincodeController.text,
+        'city': cityController.text,
+        'state': stateController.text,
+        'country': countryController.text,
+      };
 
-      final education_level = education_level_nameController;
-      final study_field = study_fieldController;
-      final school_name = school_nameController;
-      final school_state = school_stateController;
-      final school_city = school_cityController;
-      final skill = skillController;
-      final grade = gradeController;
+      final educationData = {
+        'education_level_name': education_level_nameController.text,
+        'study_field': study_fieldController.text,
+        'school_name': school_nameController.text,
+        'school_state': school_stateController.text,
+        'school_city': school_cityController.text,
+        'grade': gradeController.text,
+        's_start_month': s_start_monthController.text,
+        's_finish_month': s_finish_monthController.text,
+        's_start_year': s_start_yearController.text,
+        's_finish_year': s_finish_yearController.text,
+        'skill': skillController.text,
+      };
 
-      final company_name = company_nameController;
-      final c_state = c_stateController;
-      final c_city = c_cityController;
-      final j_description = j_descriptionController;
+      final experienceData = {
+        'company_name': company_nameController.text,
+        'c_state': c_stateController.text,
+        'c_city': c_cityController.text,
+        'j_description': j_descriptionController.text,
+        'j_start_month': j_start_monthController.text,
+        'j_finish_month': j_finish_monthController.text,
+        'j_start_year': j_start_yearController.text,
+        'j_finish_year': j_finish_yearController.text,
+      };
 
-      final certification_name = certification_nameController;
+      final certificationData = {
+        'certification_name': certification_nameController.text,
+      };
 
       final url = Platform.isAndroid
-          ? 'http://10.0.3.2:8000/api/dashboard/job/insert/$user_id'
-          : 'http://localhost:8000/api/dashboard/job/insert/$user_id';
-
-      final response = await http.post(Uri.parse(url),
+          ? 'http://10.0.3.2:8000/api/dashboard'
+          : 'http://localhost:8000/api/dashboard';
+      final response = await Future.wait([
+        http.put(
+          Uri.parse('$url/user/updateUserDetails/$user_id'),
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
-          body: jsonEncode({
-            'First Name': first_name,
-            'Middle Name': middle_name,
-            'Last_Name': last_name,
-            'Date of Birth': dob,
-            'gender': gender,
-            'Street': street,
-            'Pin Code':pincode,
-            'City':city,
-            'State':state,
-            'Country':country,
-          }));
+          body: jsonEncode(userData),
+        ),
+        http.post(
+          Uri.parse('$url/resume/InsertEducation/$user_id'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(educationData),
+        ),
+        http.post(
+          Uri.parse('$url/resume/InsertEducation/$user_id'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(experienceData),
+        ),
+        http.post(
+          Uri.parse('$url/resume/InsertCertification/$user_id'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(certificationData),
+        ),
+      ]);
+      bool success = response.every((response) =>
+          response.statusCode == 200 || response.statusCode == 201);
+      if (success) {
+        CommonHelper.animatedSnackBar(context, 'Data submitted successfully',
+            AnimatedSnackBarType.success);
+      } else {
+        CommonHelper.animatedSnackBar(
+            context, 'Failed to submit data', AnimatedSnackBarType.error);
+      }
     } catch (e) {
       print('Error: $e');
       CommonHelper.animatedSnackBar(

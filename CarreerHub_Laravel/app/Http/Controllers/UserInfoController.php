@@ -48,6 +48,18 @@ class UserInfoController extends Controller
     public function updateUserDetails($id, Request $request){
         try {
             $user = User::find($id);
+            $user->first_name=$request->first_name;
+            $user->middle_name=$request->middle_name;
+            $user->last_name=$request->last_name;
+            $user->mobile_number=$request->mobile_number;
+            $user->country=$request->country;
+            $user->state=$request->state;
+            $user->city=$request->city;
+            $user->street=$request->street;
+            $user->pincode=$request->pincode;            
+            $user->dob=$request->dob;
+            $user->gender=$request->gender;
+            //$user->resume=$request->resume;
             //$user=new User();
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
@@ -55,19 +67,19 @@ class UserInfoController extends Controller
 
             // // Retrieve the updated data from the request
             $updatedData = $request->only([
-                'email' => 'required|email|unique:users,email,' . $user->id,
-                'first_name' => 'required|string|max:255',
+                'email' => 'email|unique:users,email,' . $user->id,
+                'first_name' => 'string|max:255',
                 'middle_name' => 'nullable|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'mobile_number' => 'required|string|max:255',
+                'last_name' => 'string|max:255',
+                'mobile_number' => 'nullable|string|max:255',
                 'dob' => 'nullable|date',
                 'gender' => 'nullable|string|max:255',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'country',
-                'state',
-                'city',
-                'street',
-                'pincode',
+                'country'=>'nullable|string',
+                'state'=>'nullable|string',
+                'city'=>'nullable|string',
+                'street'=>'nullable|string',
+                'pincode'=>'nullable|string',
             ]);
     
             // // Update the user model with the updated data
@@ -93,11 +105,13 @@ class UserInfoController extends Controller
                     'first_name' => $user->first_name,
                     'middle_name' => $user->middle_name,
                     'last_name' => $user->last_name,
+                    'Full Name'=>$fullName,
                     'mobile_number' => $user->mobile_number,
                     'address' => $fullAddress,
                     'dob'=>$user->dob,
                     'gender'=>$user->gender,
-                    "resume"=>$user->resume
+                    //'resume'=>$user->resume,
+                    'Time'=>$user->created_at
                 ]
             ], 200);
         } catch (Exception $e) {
