@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:carreerhub/GetuserId.dart';
 import 'package:carreerhub/api.dart';
 import 'package:flutter/material.dart';
@@ -38,28 +39,33 @@ class _JobApplicationState extends State<JobApplication> {
       userEmail = await userData['email'] ?? '';
       resume = await userData['resume'] ?? '';
       //print(userData);
-
-      final response = await http
-          .get(Uri.parse('http://10.0.3.2:8000/api/dashboard/job/show/$jobId'));
+      final urlJob = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/show/$jobId'
+          : 'http://localhost:8000/api/dashboard/job/show/$jobId';
+      final response = await http.get(Uri.parse(urlJob));
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseuser =
             json.decode(response.body)['data'];
         setState(() {
           job = Job.fromJson(responseuser);
-          print(job);
-          print(jobId);
-          print(userId);
+          print('Job Id :${jobId}');
+          print('User Id :${userId}');
           isLoading = false;
         });
       } else {
         throw Exception('Failed to load job details');
       }
 
-      final applicationResponse = await http.get(Uri.parse(
-          'http://10.0.3.2:8000/api/dashboard/job/view-application/$userId/$jobId'));
+      final urlApplication = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/view-application/$jobId'
+          : 'http://localhosts:8000/api/dashboard/job/view-application/$jobId';
+      final applicationResponse = await http.get(Uri.parse(urlApplication));
+      print(
+          'Application Details Response Status: ${applicationResponse.statusCode}');
+      print('Application Details Response Body: ${applicationResponse.body}');
       if (applicationResponse.statusCode == 200) {
         final Map<String, dynamic> responseData =
-            json.decode(applicationResponse.body);
+            json.decode(applicationResponse.body)['data'];
         setState(() {
           applicationRecord = ApplicationRecord.fromJson(responseData['data']);
           isLoading = false;

@@ -63,17 +63,15 @@ class ApplicationRecordController extends Controller
             return response()->json(['hasApplied'=>false], 200);
         }
     }
-    public function viewApplication(Request $request, $candidate_id, $job_id)
+    public function viewApplication($job_id)
     {
         try {
             // Fetch the application record
-            $application_record = Application_Record::where('candidate_id', $candidate_id)
-                                                    ->where('job_id', $job_id)
-                                                    ->first();
+            $application_record = Application_Record::where('job_id', $job_id)->first();
 
             if (!$application_record) {
                 return response()->json([
-                    'error' => 'Application record not found for this user and job',
+                    'error' => 'Application record not found for this job',
                 ], 404);
             }
 
@@ -83,7 +81,7 @@ class ApplicationRecordController extends Controller
                 'data' => $application_record,
             ], 200);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => 'An error occurred while fetching the application record',
                 'details' => $e->getMessage(),

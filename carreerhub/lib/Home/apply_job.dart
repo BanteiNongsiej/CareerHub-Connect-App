@@ -363,7 +363,7 @@ class _ApplyJobScreeenState extends State<ApplyJobScreeen> {
       builder: (context) {
         return AlertDialog(
           title: Text('Confirm Submission'),
-          content: Text('Are you sure you want to submit?'),
+          content: Text('Are you sure you want to submit application?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -422,7 +422,7 @@ class _ApplyJobScreeenState extends State<ApplyJobScreeen> {
           'Application submitted successfully',
           AnimatedSnackBarType.success,
         );
-        Navigator.pushNamed(context, '/homepage');
+        Navigator.pushNamed(context, '/dashboard');
       } else {
         var responseData = await response.stream.bytesToString();
         var decodedResponse = json.decode(responseData);
