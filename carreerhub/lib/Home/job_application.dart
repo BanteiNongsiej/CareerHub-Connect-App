@@ -21,12 +21,12 @@ late String resume = '';
 class _JobApplicationState extends State<JobApplication> {
   Job? job;
   bool isLoading = true;
-  ApplicationRecord? applicationRecord;
+  List<ApplicationRecord> applicationRecords = [];
   String? error;
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 3));
+    Future.delayed(Duration(seconds: 4));
     fetchData(widget.jobId);
   }
 
@@ -64,10 +64,18 @@ class _JobApplicationState extends State<JobApplication> {
           'Application Details Response Status: ${applicationResponse.statusCode}');
       print('Application Details Response Body: ${applicationResponse.body}');
       if (applicationResponse.statusCode == 200) {
-        final Map<String, dynamic> responseData =
+        final List<dynamic> responseData =
             json.decode(applicationResponse.body)['data'];
+
         setState(() {
-          applicationRecord = ApplicationRecord.fromJson(responseData['data']);
+          applicationRecords = responseData
+              .map((record) => ApplicationRecord.fromJson(record))
+              .toList();
+          isLoading = false;
+        });
+      } else if (applicationResponse.statusCode == 404) {
+        setState(() {
+          error = 'No application records found for this job';
           isLoading = false;
         });
       } else {
@@ -210,31 +218,44 @@ class _JobApplicationState extends State<JobApplication> {
   }
 
   Widget buildApplicationDetails() {
-    if (applicationRecord == null) {
-      return Text('No applicants have applied yet');
+    if (applicationRecords.isEmpty) {
+      return Text(error ?? 'No application records found for this job');
     }
 
     return DataTable(
       columns: [
-        DataColumn(label: Text('Field')),
-        DataColumn(label: Text('Value')),
+        DataColumn(label: Text('Candidate Email')),
+        DataColumn(label: Text('Resume')),
+        DataColumn(label: Text('Application Date')),
       ],
-      rows: [
-        buildDataRow('Candidate Email:', applicationRecord!.candidate_email),
-        buildDataRow('Resume:', applicationRecord!.resume),
-        buildDataRow('Application Date:', applicationRecord!.applicationDate),
-        // Add more rows as needed
-      ],
+      rows: applicationRecords.map((record) {
+        return DataRow(
+          cells: [
+            DataCell(Text(record.candidate_email)),
+            DataCell(
+              GestureDetector(
+                onTap: () {
+                  // Function to view resume file
+                  viewResume(record.resume);
+                },
+                child: Text(
+                  record.resume,
+                  style: TextStyle(color: Colors.blue),
+                  overflow:TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            DataCell(Text(record.applicationDate)),
+          ],
+        );
+      }).toList(),
     );
   }
 
-  DataRow buildDataRow(String label, String value) {
-    return DataRow(
-      cells: [
-        DataCell(Text(label)),
-        DataCell(Text(value)),
-      ],
-    );
+  void viewResume(String resumeUrl) {
+    // Function to handle viewing the resume file
+    // This could involve opening a webview, launching a URL, etc.
+    print('Viewing resume: $resumeUrl');
   }
 
   Widget buildSkeletonLoader() {

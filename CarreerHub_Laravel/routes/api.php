@@ -74,4 +74,5 @@ Route::controller(ApplicationRecordController::class)->group(function(){
     Route::post('/dashboard/job/applyjob/{candidate_id}/{job_id}','store');
     Route::get('/dashboard/job/check-application/{candidate_id}/{job_id}','checkApplication');
     Route::get('/dashboard/job/view-application/{job_id}','viewApplication');
+    Route::get('/dashboard/job/viewResume/{user_id}','viewCandidateResume');
 });

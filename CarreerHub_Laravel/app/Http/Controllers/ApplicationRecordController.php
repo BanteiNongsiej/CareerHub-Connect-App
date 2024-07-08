@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationRecordController extends Controller
 {
@@ -34,10 +35,12 @@ class ApplicationRecordController extends Controller
             $application_record->job_id=$job_id;
             $application_record->candidate_email=$request->candidate_email;
             if ($request->hasFile('resume')) {
-                $originalFilename = $request->resume->getClientOriginalName();
-                //$fileName = time() . '_' . $originalFilename;
-                $request->file('resume')->storeAs('public/resumes', $originalFilename);
-                $application_record->resume = $originalFilename;
+                $originalFilename = $request->file('resume')->getClientOriginalName();
+                $fileName = $originalFilename;
+                $filePath = $request->file('resume')->storeAs('public/CandidateResume', $fileName);
+
+                // Store the file path in the database
+                $application_record->resume = 'storage/' . substr($filePath, 7);
             }
             $application_record->application_date=Carbon::now();
             $application_record->save();
@@ -67,9 +70,9 @@ class ApplicationRecordController extends Controller
     {
         try {
             // Fetch the application record
-            $application_record = Application_Record::where('job_id', $job_id)->first();
+            $application_records = Application_Record::where('job_id', $job_id)->get();
 
-            if (!$application_record) {
+            if ($application_records->isEmpty()) {
                 return response()->json([
                     'error' => 'Application record not found for this job',
                 ], 404);
@@ -78,12 +81,40 @@ class ApplicationRecordController extends Controller
             // Assuming you want to return the application record data
             return response()->json([
                 'message' => 'Application record retrieved successfully',
-                'data' => $application_record,
+                'data' => $application_records,
             ], 200);
 
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'An error occurred while fetching the application record',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function viewCandidateResume($candidate_id)
+    {
+        try {
+            $application_record = Application_Record::find($candidate_id);
+
+            if (!$application_record || !$application_record->resume) {
+                return response()->json([
+                    'error' => 'Resume not found for this application',
+                ], 404);
+            }
+
+            $resumePath = $application_record->resume;
+
+            if (Storage::exists($resumePath)) {
+                return response()->file(storage_path('app/public/' . $resumePath));
+            } else {
+                return response()->json([
+                    'error' => 'Resume file does not exist',
+                ], 404);
+            }
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'An error occurred while fetching the resume file',
                 'details' => $e->getMessage(),
             ], 500);
         }

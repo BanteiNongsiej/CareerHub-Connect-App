@@ -82,9 +82,6 @@ class _ApplyJobScreeenState extends State<ApplyJobScreeen> {
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx'],
     );
-    setState(() {
-      isLoading = true;
-    });
     if (result != null && result.files.single.path != null) {
       setState(() {
         isLoading = true;
