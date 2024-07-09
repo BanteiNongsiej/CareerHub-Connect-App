@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationRecordController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CertificationController;
@@ -36,7 +37,7 @@ Route::controller(UserInfoController::class)->group(function(){
     Route::get('/dashboard/user/{id}', 'UserDetails');
     Route::put('/dashboard/user/updateUserDetails/{id}', 'updateUserDetails');
     Route::delete('/dashboard/user/deleteUser/{id}', 'deleteUser');
-    Route::delete('/dashboard/user/viewUsers', 'viewAllUsers');
+    Route::get('/dashboard/ViewAllUsers', 'getUsers');
 });
 
 Route::controller(ResumeController::class)->group(function(){
