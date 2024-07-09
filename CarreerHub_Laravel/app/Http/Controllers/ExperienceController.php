@@ -9,9 +9,10 @@ use Illuminate\Http\Request;
 
 class ExperienceController extends Controller
 {
-    public function insert(Request $request,$user_id){
-        try{
-            $experience=new Experience();
+    public function insert(Request $request, $user_id)
+    {
+        try {
+            $experience = new Experience();
             $experience->user_id = $user_id;
             $experience->title = $request->title;
             $experience->company = $request->company;
@@ -23,22 +24,24 @@ class ExperienceController extends Controller
             $experience->finish_year = $request->finish_year;
             $experience->description = $request->description;
             $experience->save();
+
             return response()->json([
-                'data'=>$experience,
-                'message'=>'Experience inserted successfully',
-                'status'=>200,
-            ],200);
-        }catch(Exception $e){
+                'data' => $experience,
+                'message' => 'Experience inserted successfully',
+                'status' => 200,
+            ], 200);
+        } catch (Exception $e) {
             return response()->json([
-                "message"=> $e,//"Record insertion failed"
-                'status'=>404,
-            ],404);
+                'message' => $e->getMessage(),
+                'status' => 404,
+            ], 404);
         }
     }
-    public function update(ExperienceRequest $request, $id)
+
+    public function update(ExperienceRequest $request, $user_id)
     {
         try {
-            $experience = Experience::find($id);
+            $experience = Experience::where('user_id', $user_id)->first();
             if (!$experience) {
                 return response()->json([
                     'message' => 'Experience not found',
@@ -47,7 +50,6 @@ class ExperienceController extends Controller
             }
 
             // Update the experience attributes from the request
-            $experience->user_id = $request->user_id; 
             $experience->title = $request->title;
             $experience->company = $request->company;
             $experience->state = $request->state;
@@ -66,16 +68,22 @@ class ExperienceController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                "message" => $e->getMessage(),
+                'message' => $e->getMessage(),
                 'status' => 500,
             ], 500);
         }
     }
-    public function show($id)
+
+    public function show($user_id)
     {
         try {
-            // Find the experience record by its ID
-            $experience = Experience::findOrFail($id);
+            $experience = Experience::where('user_id', $user_id)->first();
+            if (!$experience) {
+                return response()->json([
+                    'message' => 'Experience not found',
+                    'status' => 404,
+                ], 404);
+            }
 
             return response()->json([
                 'data' => $experience,
@@ -84,9 +92,35 @@ class ExperienceController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Experience not found',
-                'status' => 404,
-            ], 404);
+                'message' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
+        }
+    }
+
+    public function delete($user_id)
+    {
+        try {
+            $experience = Experience::where('user_id', $user_id)->first();
+            if (!$experience) {
+                return response()->json([
+                    'message' => 'Experience not found',
+                    'status' => 404,
+                ], 404);
+            }
+            
+            $experience->delete();
+
+            return response()->json([
+                'message' => 'Experience record deleted successfully',
+                'status' => 200,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete experience record',
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
         }
     }
 }

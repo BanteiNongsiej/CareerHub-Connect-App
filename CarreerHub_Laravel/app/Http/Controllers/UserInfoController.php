@@ -17,6 +17,12 @@ class UserInfoController extends Controller
         $user = User::find($id);
         $fullName = $this->getFullName($user);
         $fullAddress = $this->getFullAddress($user);
+        if ($user->resume) {
+            // Remove the directory path and extract the file name
+            $resume = basename($user->resume);
+            // Remove the timestamp and underscore from the file name
+            $resume = preg_replace('/^\d+_/', '', $resume);
+        }
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
@@ -30,7 +36,7 @@ class UserInfoController extends Controller
                 "address" => $fullAddress,
                 "dob"=>$user->dob,
                 "gender"=>$user->gender,
-                "resume"=>$user->resume
+                "resume"=>$resume
             ],200);
         }
     }

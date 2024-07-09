@@ -157,22 +157,27 @@ class _JobDetailsState extends State<JobDetails> {
                   child: Text('Apply now',style: TextStyle(fontWeight: FontWeight.bold),),
                 ),
               ),
-              SizedBox(
-                width:double.infinity,
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        // Add to bookmarks button pressed
-                      },
-                      icon: Icon(
-                        Icons.bookmark_outline_sharp,
-                        size: 32,
-                        color: Colors.blueGrey,
+              SizedBox(height: 5,),
+              ElevatedButton(
+                onPressed: () => {},
+                child: SizedBox(
+                  width:double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          // Add to bookmarks button pressed
+                        },
+                        icon: Icon(
+                          Icons.bookmark_outline_sharp,
+                          size: 32,
+                          color: Colors.blueGrey,
+                        ),
                       ),
-                    ),
-                    Text('Save this job',style: TextStyle(fontWeight: FontWeight.bold),),
-                  ],
+                      Text('Save this job',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
+                    ],
+                  ),
                 ),
               ),
             ],

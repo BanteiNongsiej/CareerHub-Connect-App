@@ -7,6 +7,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ResumeController;
+use App\Http\Controllers\SaveJobController;
 use App\Http\Controllers\UserInfoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -51,28 +52,40 @@ Route::controller(JobController::class)->group(function(){
     Route::get('/dashboard/job/showalljob','showalljob');
     Route::put('dashboard/job/update/job','update');
     Route::delete('dashboard/job/delete/{job_id}','delete');
-
-    Route::get('/job/updateBookmark/{job}/{status}','updateBookmark');
 });
 
 Route::controller(ExperienceController::class)->group(function(){
     Route::post('/dashboard/resume/InsertExperience/{user_id}','insert');
     Route::post('/dashboard/resume/UpdateExperience/{user_id}','update');
+    Route::delete('/dashboard/resume/DeleteExperience/{user_id}','delete');
     Route::get('/dashboard/resume/getExperience/{user_id}','show');
 });
 
 Route::controller(EducationController::class)->group(function(){
     Route::post('/dashboard/resume/InsertEducation/{user_id}','insert');
     Route::post('/dashboard/resume/UpdateEducation/{user_id}','update');
+    Route::delete('/dashboard/resume/DeleteEducation/{user_id}','delete');
+    Route::get('/dashboard/resume/showEducation/{user_id}','show');
 });
 
 Route::controller(CertificationController::class)->group(function(){
     Route::post('/dashboard/resume/InsertCertification/{user_id}','insert');
+    Route::get('/dashboard/resume/ShowCertification/{user_id}','show');
+    Route::post('/dashboard/resume/UpdateCertification/{user_id}','update');
+    Route::delete('/dashboard/resume/DeleteCertification/{user_id}','delete');
 });
 
 Route::controller(ApplicationRecordController::class)->group(function(){
     Route::post('/dashboard/job/applyjob/{candidate_id}/{job_id}','store');
     Route::get('/dashboard/job/check-application/{candidate_id}/{job_id}','checkApplication');
     Route::get('/dashboard/job/view-application/{job_id}','viewApplication');
-    Route::get('/dashboard/job/viewResume/{user_id}','viewCandidateResume');
+    Route::get('/dashboard/job/viewResume/{candidate_id}','viewCandidateResume');
+    Route::post('/dashboard/job/UpdateStatus/{user_id}/{status}','updatestatus');
+});
+
+Route::controller(SaveJobController::class)->group(function(){
+    Route::post('/dashboard/job/save/{user_id}/{job_id}','save');
+    Route::delete('/dashboard/job/unsave/{user_id}/{job_id}','unsave');
+    Route::get('/dashboard/job/viewSaveJob/{user_id}/{job_id}','viewSavedJobDetails');
+    Route::get('/dashboard/job/viewAllSaveJob/{user_id}','viewAllSavedJobs');
 });

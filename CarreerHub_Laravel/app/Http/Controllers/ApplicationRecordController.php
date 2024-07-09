@@ -36,11 +36,11 @@ class ApplicationRecordController extends Controller
             $application_record->candidate_email=$request->candidate_email;
             if ($request->hasFile('resume')) {
                 $originalFilename = $request->file('resume')->getClientOriginalName();
-                $fileName = $originalFilename;
+                $fileName = time().'_'.$originalFilename;
                 $filePath = $request->file('resume')->storeAs('public/CandidateResume', $fileName);
 
                 // Store the file path in the database
-                $application_record->resume = 'storage/' . substr($filePath, 7);
+                $application_record->resume = str_replace('public/','',$filePath);
             }
             $application_record->application_date=Carbon::now();
             $application_record->save();
@@ -77,11 +77,17 @@ class ApplicationRecordController extends Controller
                     'error' => 'Application record not found for this job',
                 ], 404);
             }
-
+            $records_with_original_filenames = $application_records->map(function ($record) {
+                $storedPath = $record->resume;
+                $filenameWithTimestamp = basename($storedPath);
+                $originalFilename = substr($filenameWithTimestamp, strpos($filenameWithTimestamp, '_') + 1);
+                $record->originalFilename = $originalFilename;
+                return $record;
+            });
             // Assuming you want to return the application record data
             return response()->json([
                 'message' => 'Application record retrieved successfully',
-                'data' => $application_records,
+                'data' => $records_with_original_filenames,
             ], 200);
 
         } catch (Exception $e) {
@@ -94,18 +100,18 @@ class ApplicationRecordController extends Controller
     public function viewCandidateResume($candidate_id)
     {
         try {
-            $application_record = Application_Record::find($candidate_id);
-
+            //$application_record = Application_Record::find($candidate_id);
+            $application_record = Application_Record::where('candidate_id', $candidate_id)->first();
             if (!$application_record || !$application_record->resume) {
                 return response()->json([
                     'error' => 'Resume not found for this application',
                 ], 404);
             }
 
-            $resumePath = $application_record->resume;
+            $resumePath = storage_path('app/public/'.$application_record->resume);
 
-            if (Storage::exists($resumePath)) {
-                return response()->file(storage_path('app/public/' . $resumePath));
+            if (file_exists($resumePath)) {
+                return response()->file($resumePath);
             } else {
                 return response()->json([
                     'error' => 'Resume file does not exist',
@@ -119,4 +125,36 @@ class ApplicationRecordController extends Controller
             ], 500);
         }
     }
+    public function updatestatus($user_id, $status)
+{
+    try {
+        // Find the application record based on user_id
+        $application_record = Application_Record::where('user_id', $user_id)->first();
+
+        if (!$application_record) {
+            return response()->json([
+                'error' => 'Application record not found',
+            ], 404);
+        }
+
+        // Update status based on $status parameter
+        $application_record->status = ($status === 'Y') ? true : false;
+
+        // Save the updated status
+        $application_record->save();
+
+        return response()->json([
+            'message' => 'Application status updated successfully',
+            'data' => $application_record,
+        ], 200);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'error' => 'An error occurred while updating application status',
+            'details' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
 }

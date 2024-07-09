@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class EducationController extends Controller
 {
-    public function insert(Request $request,$user_id)
+    public function insert(Request $request, $user_id)
     {
         try {
             $education = new Education();
@@ -25,6 +25,7 @@ class EducationController extends Controller
             $education->finish_month = $request->finish_month;
             $education->finish_year = $request->finish_year;
             $education->grade = $request->grade;
+            $education->skills = $request->skills;
             $education->save();
 
             return response()->json([
@@ -40,11 +41,12 @@ class EducationController extends Controller
             ], 404);
         }
     }
-    public function update(Request $request, $id)
+
+    public function update(Request $request, $user_id)
     {
         try {
-            // Find the education record by its ID
-            $education = Education::find($id);
+            // Find the education record by user_id
+            $education = Education::where('user_id', $user_id)->first();
 
             // If education record not found, return error response
             if (!$education) {
@@ -55,7 +57,6 @@ class EducationController extends Controller
             }
 
             // Update education record attributes with data from request
-            $education->user_id = $request->user_id;
             $education->level = $request->level;
             $education->field = $request->field;
             $education->school_name = $request->school_name;
@@ -68,7 +69,7 @@ class EducationController extends Controller
             $education->finish_month = $request->finish_month;
             $education->finish_year = $request->finish_year;
             $education->grade = $request->grade;
-
+            $education->skills = $request->skills;
             // Save the updated education record
             $education->save();
 
@@ -81,6 +82,67 @@ class EducationController extends Controller
             // Return error response if update fails
             return response()->json([
                 'message' => 'Failed to update education record',
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
+        }
+    }
+
+    public function delete($user_id)
+    {
+        try {
+            // Find the education record by user_id
+            $education = Education::where('user_id', $user_id)->first();
+
+            // If education record not found, return error response
+            if (!$education) {
+                return response()->json([
+                    'message' => 'Education record not found',
+                    'status' => 404,
+                ], 404);
+            }
+
+            // Delete the education record
+            $education->delete();
+
+            return response()->json([
+                'message' => 'Education record deleted successfully',
+                'status' => 200,
+            ], 200);
+        } catch (Exception $e) {
+            // Return error response if delete fails
+            return response()->json([
+                'message' => 'Failed to delete education record',
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
+        }
+    }
+
+    public function show($user_id)
+    {
+        try {
+            // Find the education record by user_id
+            $education = Education::where('user_id', $user_id)->first();
+
+            // If education record not found, return error response
+            if (!$education) {
+                return response()->json([
+                    'message' => 'Education record not found',
+                    'status' => 404,
+                ], 404);
+            }
+
+            // Return the education record details as JSON
+            return response()->json([
+                'data' => $education,
+                'message' => 'Education record retrieved successfully',
+                'status' => 200,
+            ], 200);
+        } catch (Exception $e) {
+            // Return error response if retrieval fails
+            return response()->json([
+                'message' => 'Failed to retrieve education record',
                 'error' => $e->getMessage(),
                 'status' => 500,
             ], 500);

@@ -139,7 +139,6 @@ class JobController extends Controller
                     'qualification_req' => $job->qualification_req,
                     'skills' => $job->skills,
                     'description' => $job->description,
-                    'bookmark' =>$job->bookmark
                 ];
             });
             return response()->json([
@@ -184,14 +183,4 @@ class JobController extends Controller
         }
     }
 
-    public function updateBookmark(Job $job,$status){
-        if($status=='Y')
-            $job->bookmark = true;
-        else
-            $job->bookmark = false;
-        $job->save();
-        return response()->json([
-            'data'=>'ok'
-        ]);
-    }
 }

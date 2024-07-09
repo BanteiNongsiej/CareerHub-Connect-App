@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:carreerhub/GetuserId.dart';
 import 'package:carreerhub/api.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class JobApplication extends StatefulWidget {
@@ -222,40 +225,157 @@ class _JobApplicationState extends State<JobApplication> {
       return Text(error ?? 'No application records found for this job');
     }
 
-    return DataTable(
-      columns: [
-        DataColumn(label: Text('Candidate Email')),
-        DataColumn(label: Text('Resume')),
-        DataColumn(label: Text('Application Date')),
-      ],
-      rows: applicationRecords.map((record) {
-        return DataRow(
-          cells: [
-            DataCell(Text(record.candidate_email)),
-            DataCell(
-              GestureDetector(
-                onTap: () {
-                  // Function to view resume file
-                  viewResume(record.resume);
-                },
-                child: Text(
-                  record.resume,
-                  style: TextStyle(color: Colors.blue),
-                  overflow:TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            DataCell(Text(record.applicationDate)),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey, width: 1),
+        borderRadius: BorderRadius.circular(2),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('Candidate Email')),
+            DataColumn(label: Text('Resume')),
+            DataColumn(label: Text('Application Date')),
           ],
-        );
-      }).toList(),
+          rows: applicationRecords.map((record) {
+            return DataRow(
+              cells: [
+                DataCell(Center(child: Text(record.candidate_email))),
+                DataCell(
+                  Center(
+                    child: InkWell(
+                      onTap: () {
+                        viewResume(record.candidate_id);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.remove_red_eye, color: Colors.blue),
+                          SizedBox(width: 4),
+                          Text('Resume', style: TextStyle(color: Colors.blue)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                DataCell(Center(child: Text(record.applicationDate))),
+              ],
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
-  void viewResume(String resumeUrl) {
-    // Function to handle viewing the resume file
-    // This could involve opening a webview, launching a URL, etc.
-    print('Viewing resume: $resumeUrl');
+  void downloadResume(String resumeUrl) {
+    // Implement your resume download logic here
+    print('Downloading resume: $resumeUrl');
+  }
+
+  void viewResume(int candidate_id) async {
+    print(candidate_id);
+    try {
+      // Show CircularProgressIndicator while loading
+      showDialog(
+        context: context,
+        barrierDismissible: false, // prevent closing dialog by tapping outside
+        builder: (context) => AlertDialog(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Loading Resume...',
+                style: TextStyle(fontSize: 20),
+              ),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+          content: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+
+      // Simulate delay for 3 seconds (remove this in production)
+      await Future.delayed(Duration(seconds: 3));
+
+      // Construct the API URL for fetching the resume
+      final url = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/viewResume/$candidate_id'
+          : 'http://localhost:8000/api/dashboard/job/viewResume/$candidate_id';
+
+      final response = await http.get(Uri.parse(url));
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        // Get the file bytes
+        final Uint8List fileBytes = response.bodyBytes;
+
+        // Write the file to a temporary directory
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/resume.pdf');
+        await tempFile.writeAsBytes(fileBytes);
+
+        // Close the CircularProgressIndicator dialog
+        Navigator.of(context).pop();
+
+        // Show the PDF in a dialog
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Resume'),
+              content: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Container(
+                  width: double.maxFinite,
+                  height: 500, // Adjust the height as needed
+                  child: PDFView(
+                    filePath: tempFile.path,
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        throw Exception('Failed to load resume');
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error loading resume: $e');
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to load resume. Please try again later.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Widget buildSkeletonLoader() {
@@ -382,27 +502,30 @@ class Job {
 }
 
 class ApplicationRecord {
-  final int candidateId;
+  final int candidate_id;
   final int jobId;
   final candidate_email;
   final resume;
   final String applicationDate;
+  final String originalFilename;
 
   ApplicationRecord({
-    required this.candidateId,
+    required this.candidate_id,
     required this.jobId,
     required this.candidate_email,
     required this.resume,
     required this.applicationDate,
+    required this.originalFilename,
   });
 
   factory ApplicationRecord.fromJson(Map<String, dynamic> json) {
     return ApplicationRecord(
-      candidateId: json['candidate_id'] ?? 0,
+      candidate_id: json['candidate_id'] ?? 0,
       jobId: json['job_id'] ?? 0,
       candidate_email: json['candidate_email'] ?? '',
       resume: json['resume'] ?? '',
       applicationDate: json['application_date'] ?? '',
+      originalFilename: json['originalFilename'] ?? '',
     );
   }
 }
