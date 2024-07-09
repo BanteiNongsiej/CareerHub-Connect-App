@@ -43,6 +43,7 @@ class _ApplyJobScreeenState extends State<ApplyJobScreeen> {
   Future getUserDetails() async {}
 
   Future<void> fetchData(int jobId) async {
+    print(jobId);
     userId = await UserIdStorage.getUserId() as int;
     final userData = await ApiService.getUserDetail(userId);
     userEmail = await userData['email'] ?? '';

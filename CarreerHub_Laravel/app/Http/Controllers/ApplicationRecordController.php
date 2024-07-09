@@ -125,11 +125,11 @@ class ApplicationRecordController extends Controller
             ], 500);
         }
     }
-    public function updatestatus($user_id, $status)
+    public function updatestatus($candidate_id, $status)
 {
     try {
-        // Find the application record based on user_id
-        $application_record = Application_Record::where('user_id', $user_id)->first();
+        // Find the application record based on ca$candidate_id
+        $application_record = Application_Record::where('candidate_id', $candidate_id)->first();
 
         if (!$application_record) {
             return response()->json([
@@ -137,8 +137,11 @@ class ApplicationRecordController extends Controller
             ], 404);
         }
 
-        // Update status based on $status parameter
-        $application_record->status = ($status === 'Y') ? true : false;
+        if($status=='Y'){
+            $application_record->status=true;
+        }else{
+            $application_record->status=false;
+        }
 
         // Save the updated status
         $application_record->save();

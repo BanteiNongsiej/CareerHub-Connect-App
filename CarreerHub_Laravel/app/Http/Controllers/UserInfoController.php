@@ -145,4 +145,32 @@ class UserInfoController extends Controller
                     'error' => $e->getMessage()], 500);
         }
     }
+    public function viewAllUsers()
+    {
+        try {
+            // Retrieve all users
+            $users = User::all();
+
+            // Check if users exist
+            if ($users->isEmpty()) {
+                return response()->json(['message' => 'No users found'], 404);
+            }
+
+            // Debugging output
+            // dd($users);
+
+            // Return success response with all users data
+            return response()->json(['data' => $users], 200);
+
+        } catch (Exception $e) {
+            // If an exception occurs, log the error
+            // Log::error('Failed to fetch users: ' . $e->getMessage());
+
+            // Return an error response
+            return response()->json([
+                'message' => 'Failed to fetch users',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

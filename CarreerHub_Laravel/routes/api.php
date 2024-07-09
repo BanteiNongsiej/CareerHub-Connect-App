@@ -36,6 +36,7 @@ Route::controller(UserInfoController::class)->group(function(){
     Route::get('/dashboard/user/{id}', 'UserDetails');
     Route::put('/dashboard/user/updateUserDetails/{id}', 'updateUserDetails');
     Route::delete('/dashboard/user/deleteUser/{id}', 'deleteUser');
+    Route::delete('/dashboard/user/viewUsers', 'viewAllUsers');
 });
 
 Route::controller(ResumeController::class)->group(function(){
