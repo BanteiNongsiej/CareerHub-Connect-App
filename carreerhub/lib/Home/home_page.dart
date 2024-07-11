@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:carreerhub/GetuserId.dart';
+import 'package:carreerhub/Home/apply_job.dart';
 import 'package:carreerhub/Home/job_details.dart';
+import 'package:carreerhub/api.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +22,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
   List<Job> jobList = [];
   List<Job> filteredJobList = []; // List to store filtered data
   bool isloading = true;
+  int user_id = 0;
   TextEditingController searchController = TextEditingController();
+
+  Future getUserId() async {
+    user_id = await UserIdStorage.getUserId() as int;
+  }
 
   @override
   void initState() {
@@ -50,6 +58,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   min_salary: data['min_salary'] ?? '',
                   max_salary: data['max_salary'] ?? '',
                   description: data['description'] ?? '',
+                  shift_type: data['shift_type'] ?? '',
                 ))
             .toList();
         filteredJobList =
@@ -76,7 +85,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 job.job_type.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.min_salary.toLowerCase().contains(keyword.toLowerCase()) ||
                 job.max_salary.toLowerCase().contains(keyword.toLowerCase()) ||
-                job.description.toLowerCase().contains(keyword.toLowerCase()))
+                job.description.toLowerCase().contains(keyword.toLowerCase()) ||
+                job.shift_type.toLowerCase().contains(keyword.toLowerCase()))
             .toList();
       }
     });
@@ -148,18 +158,19 @@ class Job {
   final String min_salary;
   final String max_salary;
   final String description;
+  final String shift_type;
   int bookmark = 0;
 
-  Job({
-    required this.id,
-    required this.title,
-    required this.name,
-    required this.address,
-    required this.job_type,
-    required this.min_salary,
-    required this.max_salary,
-    required this.description,
-  });
+  Job(
+      {required this.id,
+      required this.title,
+      required this.name,
+      required this.address,
+      required this.job_type,
+      required this.min_salary,
+      required this.max_salary,
+      required this.description,
+      required this.shift_type});
 
   factory Job.fromJson(Map<String, dynamic> json) {
     return Job(
@@ -170,7 +181,8 @@ class Job {
         job_type: json['job_type'] ?? '',
         min_salary: json['min_salary'] ?? '',
         max_salary: json['max_salary'] ?? '',
-        description: json['description'] ?? '');
+        description: json['description'] ?? '',
+        shift_type: json['shift_type']);
   }
 
   Map<String, dynamic> toJson() {
@@ -183,6 +195,7 @@ class Job {
       'min_salary': min_salary,
       'max_salary': max_salary,
       'description': description,
+      'shift_type': shift_type
     };
   }
 }
@@ -258,9 +271,20 @@ class _JobCardState extends State<JobCard> {
                         padding: EdgeInsets.symmetric(horizontal: 0),
                         child: Text(widget.job.job_type),
                       ),
+                      SizedBox(
+                        width: 15,
+                      ),
                       Container(
                         color: const Color.fromARGB(255, 227, 225, 216),
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: EdgeInsets.symmetric(horizontal: 0),
+                        child: Text(widget.job.shift_type),
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      Container(
+                        color: const Color.fromARGB(255, 227, 225, 216),
+                        //padding: EdgeInsets.symmetric(horizontal: 20),
                         child: widget.job.max_salary.isEmpty
                             ? Text('\u{20B9}${widget.job.min_salary}')
                             : Text(
@@ -276,7 +300,7 @@ class _JobCardState extends State<JobCard> {
               ),
               IconButton(
                 onPressed: () {
-                  checkBookmark();
+                  saveJob();
                 },
                 icon: FaIcon(
                   widget.job.bookmark == 1
@@ -294,22 +318,23 @@ class _JobCardState extends State<JobCard> {
     );
   }
 
-  void checkBookmark() async {
-    String isbookmark = 'N';
+  void saveJob() async {
+    String isSaved = 'N';
     setState(() {
       if (widget.job.bookmark == 0) {
         widget.job.bookmark = 1;
-        isbookmark = 'Y';
+        isSaved = 'Y';
       } else {
         widget.job.bookmark = 0;
-        isbookmark = 'N';
+        isSaved = 'N';
       }
     });
 
     print(widget.job.id);
+    print(user_id);
     String url =
-        'http://10.0.3.2:8000/api/job/updateBookmark/${widget.job.id}/$isbookmark';
-    await http.get(Uri.parse(url));
+        'http://10.0.3.2:8000/api/dashboard/job/save/${user_id}/${widget.job.id}/$isSaved';
+    await http.post(Uri.parse(url));
   }
 }
 

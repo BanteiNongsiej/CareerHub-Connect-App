@@ -7,6 +7,7 @@ use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\ProfileImageController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\SaveJobController;
 use App\Http\Controllers\UserInfoController;
@@ -90,4 +91,11 @@ Route::controller(SaveJobController::class)->group(function(){
     Route::delete('/dashboard/job/unsave/{user_id}/{job_id}','unsave');
     Route::get('/dashboard/job/viewSaveJob/{user_id}/{job_id}','viewSavedJobDetails');
     Route::get('/dashboard/job/viewAllSaveJob/{user_id}','viewAllSavedJobs');
+});
+
+Route::controller(ProfileImageController::class)->group(function(){
+    Route::post('/dashboard/user/storeProfile/{id}','store');
+    Route::put('/dashboard/user/updateProfile/{id}','update');
+    Route::delete('/dashboard/user/deleteProfile/{id}','delete');
+    Route::get('/dashboard/user/viewProfile/{id}','view');
 });

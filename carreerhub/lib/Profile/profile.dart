@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:carreerhub/api.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:mime/mime.dart';
@@ -28,6 +29,7 @@ late String username = '';
 late String address = '';
 late String mobile_number = '';
 late String resume = '';
+late String profile_image = '';
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String imagePath = '';
@@ -61,6 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     address = await userData['address'] ?? '';
     mobile_number = await userData['mobile_number'] ?? '';
     resume = await userData['resume'] ?? '';
+    profile_image = await userData['profile_image'] ?? '';
     print(userData);
   }
 
@@ -117,14 +120,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           TextButton.icon(
             icon: Icon(Icons.camera_alt),
-            label: Text('Camera'),
+            label: Text('Take Photo'),
             onPressed: () {
               _pickImage(ImageSource.camera);
             },
           ),
           TextButton.icon(
             icon: Icon(Icons.photo),
-            label: Text('Gallery'),
+            label: Text('Select Image'),
             onPressed: () {
               _pickImage(ImageSource.gallery);
             },
@@ -141,11 +144,115 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
+    final pickedFile = await picker.pickImage(source: source, imageQuality: 75);
 
     if (pickedFile != null) {
-      // Handle the picked image file
-      print('Picked image: ${pickedFile.path}');
+      // Check file extension
+      final String filePath = pickedFile.path;
+      final String fileExtension = filePath.split('.').last.toLowerCase();
+
+      // Allowed extensions
+      final List<String> allowedExtensions = ['jpeg', 'jpg', 'png'];
+
+      if (allowedExtensions.contains(fileExtension)) {
+        setState(() {
+          selectedFile = File(filePath);
+        });
+        print('Picked image: $filePath');
+        File? croppedFile = await CropImage(selectedFile!);
+        setState(() {
+          selectedFile = croppedFile;
+        });
+        await _uploadProfileImage();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Unsupported file type. Please select a JPEG, JPG, or PNG image.')),
+        );
+      }
+    }
+  }
+
+  Future<File?> CropImage(File imageFile) async {
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: imageFile.path,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      uiSettings: [
+        AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        IOSUiSettings(
+          title: 'Cropper',
+        ),
+        WebUiSettings(
+          context: context,
+        ),
+      ],
+    );
+    if (croppedFile == null) {
+      return null;
+    }
+    return File(croppedFile.path);
+  }
+
+  Future<void> _uploadProfileImage() async {
+    if (selectedFile == null) return;
+
+    try {
+      final url = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/user/updateProfile/$userId'
+          : 'http://localhost:8000/api/dashboard/user/updateProfile/$userId';
+
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse(url),
+      );
+
+      // Determine the content type based on the file extension
+      String mimeType = lookupMimeType(selectedFile!.path) ?? 'image/jpeg';
+      var contentType = MediaType.parse(mimeType);
+
+      request.files.add(await http.MultipartFile.fromPath(
+        'profile_image',
+        selectedFile!.path,
+        contentType: contentType,
+      ));
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        // Assuming the response contains the updated profile image URL
+        setState(() {
+          profile_image =
+              responseBody; // Update the profileImage with the new URL
+        });
+        print('Profile image updated successfully');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Profile image updated successfully')),
+        );
+      } else {
+        print('Failed to update profile image');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile image')),
+        );
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('An error occurred while updating profile image')),
+      );
     }
   }
 
@@ -378,8 +485,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onTap: showProfileImageDialog,
                             child: CircleAvatar(
                               radius: 45,
-                              backgroundImage:
-                                  AssetImage('images/no_profile.jpg'),
+                              backgroundImage: profile_image.isEmpty &&
+                                      Uri.parse(profile_image).isAbsolute
+                                  ? NetworkImage(profile_image)
+                                  : AssetImage('images/no_profile.jpg')
+                                      as ImageProvider,
                             ),
                           ),
                         ),
@@ -684,8 +794,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onTap: showProfileImageDialog,
                           child: CircleAvatar(
                             radius: 45,
-                            backgroundImage:
-                                AssetImage('images/no_profile.jpg'),
+                            backgroundImage: profile_image.isEmpty &&
+                                    Uri.parse(profile_image).isAbsolute
+                                ? NetworkImage(profile_image)
+                                : AssetImage('images/no_profile.jpg')
+                                    as ImageProvider,
                           ),
                         ),
                       ),
