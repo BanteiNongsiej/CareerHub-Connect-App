@@ -38,15 +38,15 @@ class _AddJobScreenState extends State<AddJobScreen> {
         }
         jobList = dataList
             .map((data) => Job(
-                  id: data['id'] ?? '',
-                  title: data['title'] ?? '',
-                  name: data['name'] ?? '',
-                  address: data['address'] ?? '',
-                  job_type: data['job_type'] ?? '',
-                  min_salary: data['min_salary'] ?? '',
-                  max_salary: data['max_salary'] ?? '',
-                  description: data['description'] ?? '',
-                ))
+                id: data['id'] ?? '',
+                title: data['title'] ?? '',
+                name: data['name'] ?? '',
+                address: data['address'] ?? '',
+                job_type: data['job_type'] ?? '',
+                min_salary: data['min_salary'] ?? '',
+                max_salary: data['max_salary'] ?? '',
+                description: data['description'] ?? '',
+                shift_type: data['shift_type'] ?? ''))
             .toList();
         isLoading = false;
       });
@@ -149,6 +149,7 @@ class Job {
   final String min_salary;
   final String max_salary;
   final String description;
+  final String shift_type;
 
   Job({
     required this.id,
@@ -159,6 +160,7 @@ class Job {
     required this.min_salary,
     required this.max_salary,
     required this.description,
+    required this.shift_type,
   });
 }
 
@@ -181,7 +183,8 @@ class _JobCardState extends State<JobCard> {
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(20)),
         onTap: () => {
-          Navigator.pushNamed(context, '/job_application',arguments: widget.job.id)
+          Navigator.pushNamed(context, '/job_application',
+              arguments: widget.job.id)
         },
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -195,14 +198,21 @@ class _JobCardState extends State<JobCard> {
                 children: [
                   Text(
                     widget.job.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text('Company Name: ${widget.job.name}'),
+                  Text(widget.job.name),
                   Row(
                     children: [
-                      const FaIcon(FontAwesomeIcons.locationDot, size: 14.0),
+                      const FaIcon(
+                        FontAwesomeIcons.locationDot,
+                        size: 16.0,
+                        color: Color.fromARGB(255, 140, 61, 61),
+                      ),
                       const SizedBox(width: 4.0),
                       Flexible(
                         child: Text(
@@ -220,9 +230,20 @@ class _JobCardState extends State<JobCard> {
                         padding: EdgeInsets.symmetric(horizontal: 0),
                         child: Text(widget.job.job_type),
                       ),
+                      SizedBox(
+                        width: 15,
+                      ),
                       Container(
                         color: const Color.fromARGB(255, 227, 225, 216),
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: EdgeInsets.symmetric(horizontal: 0),
+                        child: Text(widget.job.shift_type),
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      Container(
+                        color: const Color.fromARGB(255, 227, 225, 216),
+                        //padding: EdgeInsets.symmetric(horizontal: 20),
                         child: widget.job.max_salary.isEmpty
                             ? Text('\u{20B9}${widget.job.min_salary}')
                             : Text(
@@ -236,6 +257,15 @@ class _JobCardState extends State<JobCard> {
                   ),
                 ],
               ),
+              // IconButton(
+              //   onPressed: () {
+              //    // deleteJob();
+              //   },
+              //   icon: FaIcon(
+              //     FontAwesomeIcons.trash,
+              //     color: const Color.fromARGB(255, 94, 90, 90),
+              //   ),
+              // ),
             ],
           ),
         ),

@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:carreerhub/GetuserId.dart';
+import 'package:carreerhub/helper/commonhelper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:skeletonizer/skeletonizer.dart';
@@ -15,6 +18,8 @@ class JobDetails extends StatefulWidget {
 class _JobDetailsState extends State<JobDetails> {
   Job? job;
   bool isLoading = true;
+  bool isSaving = false;
+  int userId = 0;
 
   @override
   void initState() {
@@ -23,6 +28,7 @@ class _JobDetailsState extends State<JobDetails> {
   }
 
   Future<void> fetchData(int jobId) async {
+    userId = await UserIdStorage.getUserId() as int;
     final response = await http
         .get(Uri.parse('http://10.0.3.2:8000/api/dashboard/job/show/$jobId'));
     if (response.statusCode == 200) {
@@ -30,11 +36,57 @@ class _JobDetailsState extends State<JobDetails> {
           json.decode(response.body)['data'];
       setState(() {
         job = Job.fromJson(responseData);
-        print(jobId);
+        print('user id: ${userId}');
+        print('job id: ${widget.jobId}');
         isLoading = false;
       });
     } else {
       throw Exception('Failed to load job details');
+    }
+  }
+
+  Future<void> saveJob() async {
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'http://10.0.3.2:8000/api/dashboard/job/save/$userId/${widget.jobId}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'job_id': widget.jobId,
+          'user_id': userId,
+        }),
+      );
+
+      await Future.delayed(Duration(seconds: 2)); // Adding delay of 3 seconds
+
+      if (response.statusCode == 201) {
+        CommonHelper.animatedSnackBar(
+            context, 'Job saved successfully', AnimatedSnackBarType.success);
+      } else if (response.statusCode == 400) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text(responseData['message'])),
+        // );
+        CommonHelper.animatedSnackBar(
+            context, responseData['message'], AnimatedSnackBarType.info);
+      } else {
+        CommonHelper.animatedSnackBar(
+            context, 'Failed to save job', AnimatedSnackBarType.error);
+      }
+    } catch (e) {
+      print(e);
+      CommonHelper.animatedSnackBar(
+          context, 'Failed to save job', AnimatedSnackBarType.error);
+    } finally {
+      setState(() {
+        isSaving = false;
+      });
     }
   }
 
@@ -97,6 +149,15 @@ class _JobDetailsState extends State<JobDetails> {
     );
   }
 
+  String formatSalary(
+      String minSalary, String? maxSalary, String salaryPeriod) {
+    if (maxSalary == null || maxSalary.isEmpty) {
+      return '$minSalary per $salaryPeriod';
+    } else {
+      return '$minSalary-$maxSalary per $salaryPeriod';
+    }
+  }
+
   Widget buildJobDetails() {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.0),
@@ -114,10 +175,12 @@ class _JobDetailsState extends State<JobDetails> {
           SizedBox(height: 16),
           buildDetailRow('Company Name:', job!.name),
           buildDetailRow('Address:', job!.address),
+          Divider(),
           buildDetailRow('Job Type:', job!.job_type),
-          buildDetailRow('Minimum Salary:', job!.min_salary),
-          buildDetailRow('Maximum Salary:', job!.max_salary ?? 'Not specified'),
-          buildDetailRow('Salary Period:', job!.salary_period),
+          buildDetailRow(
+            'Salary:',
+            formatSalary(job!.min_salary, job!.max_salary, job!.salary_period),
+          ),
           buildDetailRow('Shift Type:', job!.shift_type ?? 'Not specified'),
           buildDetailRow('Number of People:', job!.no_people),
           buildDetailRow('Experience Requirement:',
@@ -125,7 +188,8 @@ class _JobDetailsState extends State<JobDetails> {
           buildDetailRow('Qualification Requirement:',
               job!.qualification_req ?? 'Not specified'),
           buildDetailRow('Skills:', job!.skills ?? 'Not specified'),
-          SizedBox(height: 16),
+          //SizedBox(height: 16),
+          Divider(),
           Text(
             'Job Description:',
             style: TextStyle(
@@ -144,40 +208,44 @@ class _JobDetailsState extends State<JobDetails> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               SizedBox(
-                width:double.infinity,
+                width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/applyingjob',arguments: widget.jobId);
+                    Navigator.pushNamed(context, '/applyingjob',
+                        arguments: widget.jobId);
                   },
                   style: ElevatedButton.styleFrom(
                     //primary: Colors.grey,
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     textStyle: TextStyle(fontSize: 16, color: Colors.black),
                   ),
-                  child: Text('Apply now',style: TextStyle(fontWeight: FontWeight.bold),),
+                  child: Text(
+                    'Apply now',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-              SizedBox(height: 5,),
-              ElevatedButton(
-                onPressed: () => {},
-                child: SizedBox(
-                  width:double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          // Add to bookmarks button pressed
-                        },
-                        icon: Icon(
-                          Icons.bookmark_outline_sharp,
-                          size: 32,
-                          color: Colors.blueGrey,
-                        ),
-                      ),
-                      Text('Save this job',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
-                    ],
+              SizedBox(
+                height: 5,
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isSaving ? null : saveJob,
+                  style: ElevatedButton.styleFrom(
+                    //primary: Colors.grey,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    textStyle: TextStyle(fontSize: 16, color: Colors.black),
                   ),
+                  child: isSaving
+                      ? CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.black54),
+                        )
+                      : Text(
+                          'Save this job',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
             ],

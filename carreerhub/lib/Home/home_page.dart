@@ -159,7 +159,6 @@ class Job {
   final String max_salary;
   final String description;
   final String shift_type;
-  int bookmark = 0;
 
   Job(
       {required this.id,
@@ -298,43 +297,24 @@ class _JobCardState extends State<JobCard> {
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () {
-                  saveJob();
-                },
-                icon: FaIcon(
-                  widget.job.bookmark == 1
-                      ? FontAwesomeIcons.solidBookmark
-                      : FontAwesomeIcons.bookmark,
-                  color: widget.job.bookmark == 1
-                      ? const Color.fromARGB(255, 94, 90, 90)
-                      : const Color.fromARGB(255, 94, 90, 90),
-                ),
-              ),
+              // IconButton(
+              //   onPressed: () {
+              //     saveJob();
+              //   },
+              //   icon: FaIcon(
+              //     widget.job.bookmark == 1
+              //         ? FontAwesomeIcons.solidBookmark
+              //         : FontAwesomeIcons.bookmark,
+              //     color: widget.job.bookmark == 1
+              //         ? const Color.fromARGB(255, 94, 90, 90)
+              //         : const Color.fromARGB(255, 94, 90, 90),
+              //   ),
+              // ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  void saveJob() async {
-    String isSaved = 'N';
-    setState(() {
-      if (widget.job.bookmark == 0) {
-        widget.job.bookmark = 1;
-        isSaved = 'Y';
-      } else {
-        widget.job.bookmark = 0;
-        isSaved = 'N';
-      }
-    });
-
-    print(widget.job.id);
-    print(user_id);
-    String url =
-        'http://10.0.3.2:8000/api/dashboard/job/save/${user_id}/${widget.job.id}/$isSaved';
-    await http.post(Uri.parse(url));
   }
 }
 

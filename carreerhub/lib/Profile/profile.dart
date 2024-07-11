@@ -159,10 +159,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           selectedFile = File(filePath);
         });
         print('Picked image: $filePath');
-        File? croppedFile = await CropImage(selectedFile!);
-        setState(() {
-          selectedFile = croppedFile;
-        });
+        // File? croppedFile = await CropImage(selectedFile!);
+        // setState(() {
+        //   selectedFile = croppedFile;
+        // });
         await _uploadProfileImage();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -237,6 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           profile_image =
               responseBody; // Update the profileImage with the new URL
         });
+        print(responseBody);
         print('Profile image updated successfully');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Profile image updated successfully')),
@@ -282,7 +283,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> uploadResume(File file) async {
+    final url = Platform.isAndroid
+        ? 'http://10.0.3.2:8000/api/dashboard/storeResumeFile/$userId'
+        : 'http://localhost:8000/api/dashboard/storeResumeFile/$userId';
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+    var mimeType = lookupMimeType(file.path);
+    // var fileName = file.path.split('/').last;
+
+    request.files.add(await http.MultipartFile.fromPath(
+      'resume',
+      file.path,
+      contentType: MediaType.parse(mimeType!), // Parse MIME type correctly
+      filename: filename,
+    ));
+    request.fields['filename'] = filename ?? '';
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      print('Resume uploaded successfully');
+      CommonHelper.animatedSnackBar(context, 'Resume Uploaded successfully',
+          AnimatedSnackBarType.success);
+    } else {
+      CommonHelper.animatedSnackBar(
+          context, 'Failed to upload resume', AnimatedSnackBarType.error);
+      print('Failed to upload resume');
+    }
+  }
+
   Future<void> deleteResume() async {
+    print('delete resume');
     try {
       final url = Platform.isAndroid
           ? 'http://10.0.3.2:8000/api/dashboard/deleteResumeFile/$userId'
@@ -326,32 +356,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> uploadResume(File file) async {
-    final url = Platform.isAndroid
-        ? 'http://10.0.3.2:8000/api/dashboard/storeResumeFile/$userId'
-        : 'http://localhost:8000/api/dashboard/storeResumeFile/$userId';
-    var request = http.MultipartRequest('POST', Uri.parse(url));
-    var mimeType = lookupMimeType(file.path);
-    // var fileName = file.path.split('/').last;
-
-    request.files.add(await http.MultipartFile.fromPath(
-      'resume',
-      file.path,
-      contentType: MediaType.parse(mimeType!), // Parse MIME type correctly
-      filename: filename,
-    ));
-    request.fields['filename'] = filename ?? '';
-    var response = await request.send();
-
-    if (response.statusCode == 200) {
-      print('Resume uploaded successfully');
-    } else {
-      print('Failed to upload resume');
-    }
-  }
-
-  Future<void> viewResume() async {
-    print(user_id);
+  viewResume() async {
+    print('view Resume');
     try {
       // Show CircularProgressIndicator while loading
       showDialog(
@@ -626,23 +632,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                       PopupMenuButton<String>(
                                         onSelected: (String value) {
-                                          if (value == 'edit') {
-                                            pickResume(); // Implement your edit functionality here
-                                          } else if (value == 'delete') {
+                                          if (value == 'delete') {
+                                            print(value);
                                             deleteResume(); // Implement your delete functionality here
+                                            print('delete resume');
                                           } else if (value == 'view') {
+                                            print(value);
                                             viewResume(); // Call viewResume function here
                                           }
                                         },
                                         itemBuilder: (BuildContext context) =>
                                             <PopupMenuEntry<String>>[
-                                          const PopupMenuItem<String>(
-                                            value: 'edit',
-                                            child: ListTile(
-                                              leading: Icon(Icons.edit),
-                                              title: Text('Edit'),
-                                            ),
-                                          ),
                                           const PopupMenuItem<String>(
                                             value: 'delete',
                                             child: ListTile(
@@ -933,6 +933,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           pickResume();
                                         } else if (value == 'delete') {
                                           deleteResume();
+                                          print('delete resume');
                                         } else if (value == 'view') {}
                                       },
                                       itemBuilder: (BuildContext context) =>
@@ -1035,22 +1036,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 40),
                 SizedBox(
                   width: double.infinity,
+                  height: 50,
                   child: ElevatedButton(
-                    onPressed: () {},
-                    child: Row(
-                      children: [
-                        FaIcon(FontAwesomeIcons.solidBookmark),
-                        SizedBox(width: 8),
-                        Text(
-                          'Saved',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/savejobs');
+                    },
+                    child: Text(
+                      'Saved',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
                 SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
                   width: double.infinity,
+                  height: 50,
                   child: ElevatedButton(
                     onPressed: () {},
                     child: Text(

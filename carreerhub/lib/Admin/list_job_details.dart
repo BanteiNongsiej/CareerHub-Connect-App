@@ -93,6 +93,15 @@ class _ListJobsDetailsState extends State<ListJobsDetails> {
     );
   }
 
+  String formatSalary(
+      String minSalary, String? maxSalary, String salaryPeriod) {
+    if (maxSalary == null || maxSalary.isEmpty) {
+      return '$minSalary per $salaryPeriod';
+    } else {
+      return '$minSalary-$maxSalary per $salaryPeriod';
+    }
+  }
+
   Widget buildJobDetails() {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.0),
@@ -110,10 +119,12 @@ class _ListJobsDetailsState extends State<ListJobsDetails> {
           SizedBox(height: 16),
           buildDetailRow('Company Name:', job!.name),
           buildDetailRow('Address:', job!.address),
+          Divider(),
           buildDetailRow('Job Type:', job!.job_type),
-          buildDetailRow('Minimum Salary:', job!.min_salary),
-          buildDetailRow('Maximum Salary:', job!.max_salary ?? 'Not specified'),
-          buildDetailRow('Salary Period:', job!.salary_period),
+          buildDetailRow(
+            'Salary:',
+            formatSalary(job!.min_salary, job!.max_salary, job!.salary_period),
+          ),
           buildDetailRow('Shift Type:', job!.shift_type ?? 'Not specified'),
           buildDetailRow('Number of People:', job!.no_people),
           buildDetailRow('Experience Requirement:',
@@ -122,6 +133,7 @@ class _ListJobsDetailsState extends State<ListJobsDetails> {
               job!.qualification_req ?? 'Not specified'),
           buildDetailRow('Skills:', job!.skills ?? 'Not specified'),
           SizedBox(height: 16),
+          Divider(),
           Text(
             'Job Description:',
             style: TextStyle(

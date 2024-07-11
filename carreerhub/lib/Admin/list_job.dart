@@ -45,7 +45,9 @@ class _ListJobsState extends State<ListJobs> {
                 address: data['address'] ?? '',
                 job_type: data['job_type'] ?? '',
                 min_salary: data['min_salary'] ?? '',
-                description: data['description'] ?? ''))
+                max_salary: data['max_salary'] ?? '',
+                description: data['description'] ?? '',
+                shift_type: data['shift_type'] ?? ''))
             .toList();
         filteredJobList =
             List.from(jobList); // Initialize filteredJobList with jobList
@@ -139,7 +141,9 @@ class Job {
   final String address;
   final String job_type;
   final String min_salary;
+  final String max_salary;
   final String description;
+  final String shift_type;
 
   Job({
     required this.id,
@@ -148,7 +152,9 @@ class Job {
     required this.address,
     required this.job_type,
     required this.min_salary,
+    required this.max_salary,
     required this.description,
+    required this.shift_type,
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
@@ -159,7 +165,9 @@ class Job {
         address: json['address'] ?? '',
         job_type: json['job_type'] ?? '',
         min_salary: json['min_salary'] ?? '',
-        description: json['description'] ?? '');
+        max_salary: json['max_salary'] ?? '',
+        description: json['description'] ?? '',
+        shift_type: json['shift_type'] ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -170,7 +178,9 @@ class Job {
       'address': address,
       'job_type': job_type,
       'min_salary': min_salary,
+      'max_salary': max_salary,
       'description': description,
+      'shift_type': shift_type,
     };
   }
 }
@@ -194,7 +204,8 @@ class _JobCardState extends State<JobCard> {
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(20)),
         onTap: () => {
-          Navigator.pushNamed(context, '/listjobdetails', arguments: widget.job.id)
+          Navigator.pushNamed(context, '/listjobdetails',
+              arguments: widget.job.id)
         },
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -240,10 +251,20 @@ class _JobCardState extends State<JobCard> {
                         padding: EdgeInsets.symmetric(horizontal: 0),
                         child: Text(widget.job.job_type),
                       ),
+                      SizedBox(width: 10),
                       Container(
                         color: const Color.fromARGB(255, 227, 225, 216),
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Text('\u{20B9}${widget.job.min_salary}'),
+                        padding: EdgeInsets.symmetric(horizontal: 0),
+                        child: Text(widget.job.shift_type),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        color: const Color.fromARGB(255, 227, 225, 216),
+                        //padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: widget.job.max_salary.isEmpty
+                            ? Text('\u{20B9}${widget.job.min_salary}')
+                            : Text(
+                                '\u{20B9}${widget.job.min_salary} - \u{20B9}${widget.job.max_salary}'),
                       ),
                     ],
                   ),
@@ -253,15 +274,13 @@ class _JobCardState extends State<JobCard> {
                   ),
                 ],
               ),
-              
             ],
           ),
         ),
       ),
     );
   }
-  }
-
+}
 
 class JobCardPlaceholder extends StatefulWidget {
   @override

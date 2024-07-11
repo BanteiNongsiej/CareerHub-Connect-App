@@ -57,9 +57,11 @@ class ResumeController extends Controller
     }
 
 
-public function update(Request $request, $user_id)
+    public function update(Request $request, $user_id)
 {
     try {
+        Log::info('Update resume request received for user ID: ' . $user_id);
+
         // Validate the request
         $request->validate([
             'resume' => 'required|mimes:pdf,doc,docx|max:5242880',
@@ -68,11 +70,13 @@ public function update(Request $request, $user_id)
         // Find the user
         $user = User::find($user_id);
         if (!$user) {
+            Log::warning('User not found for ID: ' . $user_id);
             return response()->json(['message' => 'User not found'], 404);
         }
 
         // Delete the old resume file if it exists
         if ($user->resume && Storage::exists('public/' . $user->resume)) {
+            Log::info('Deleting old resume for user ID: ' . $user_id . ' at path: public/' . $user->resume);
             Storage::delete('public/' . $user->resume);
         }
 
@@ -85,18 +89,21 @@ public function update(Request $request, $user_id)
             // Store the file path in the database
             $user->resume = str_replace('public/', '', $filePath); // Store the path without 'public/'
         } else {
+            Log::warning('No file uploaded in update request for user ID: ' . $user_id);
             return response()->json(['message' => 'No file uploaded'], 400);
         }
 
         // Save the user's resume information
         $user->save();
 
+        Log::info('Resume updated successfully for user ID: ' . $user_id);
         // Return a success response
         return response()->json([
             'message' => 'Resume updated successfully',
             'resume' => $user->resume,
         ], 200);
     } catch (Exception $e) {
+        Log::error('Failed to update resume for user ID: ' . $user_id, ['error' => $e->getMessage()]);
         // If an exception occurs, return an error response
         return response()->json([
             'message' => 'Failed to update resume',
@@ -105,57 +112,51 @@ public function update(Request $request, $user_id)
     }
 }
 
-
-
-
-public function delete($user_id)
-{
-    try {
-        // Find the user
-        $user = User::find($user_id);
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        // Check if the user has a resume
-        if ($user->resume) {
-            $resumePath = 'public/' . $user->resume;
-            Log::info("Attempting to delete resume at path: " . $resumePath);
-
-            // Delete the resume file if it exists
-            if (Storage::exists($resumePath)) {
-                Storage::delete($resumePath);
-                $user->resume = null;
-                $user->save();
-
-                // Return a success response
-                return response()->json([
-                    'message' => 'Resume deleted successfully',
-                ], 200);
-            } else {
-                // If the file doesn't exist, still clear the resume path in the database
-                Log::warning("Resume file not found at path: " . $resumePath);
-                $user->resume = null;
-                $user->save();
-
-                return response()->json([
-                    'message' => 'Resume file not found, but database path cleared',
-                ], 200);
+    public function delete($user_id)
+    {
+        try {
+            // Find the user
+            $user = User::find($user_id);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
             }
-        } else {
-            return response()->json(['message' => 'No resume to delete'], 404);
+
+            // Check if the user has a resume
+            if ($user->resume) {
+                $resumePath = 'public/' . $user->resume;
+                Log::info("Attempting to delete resume at path: " . $resumePath);
+
+                // Delete the resume file if it exists
+                if (Storage::exists($resumePath)) {
+                    Storage::delete($resumePath);
+                    $user->resume = null;
+                    $user->save();
+
+                    // Return a success response
+                    return response()->json([
+                        'message' => 'Resume deleted successfully',
+                    ], 200);
+                } else {
+                    // If the file doesn't exist, still clear the resume path in the database
+                    Log::warning("Resume file not found at path: " . $resumePath);
+                    $user->resume = null;
+                    $user->save();
+
+                    return response()->json([
+                        'message' => 'Resume file not found, but database path cleared',
+                    ], 200);
+                }
+            } else {
+                return response()->json(['message' => 'No resume to delete'], 404);
+            }
+        } catch (Exception $e) {
+            // If an exception occurs, return an error response
+            return response()->json([
+                'message' => 'Failed to delete resume',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-    } catch (Exception $e) {
-        // If an exception occurs, return an error response
-        return response()->json([
-            'message' => 'Failed to delete resume',
-            'error' => $e->getMessage(),
-        ], 500);
     }
-}
-
-
-
     public function view($user_id)
     {
         try {
