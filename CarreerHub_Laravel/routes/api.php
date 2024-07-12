@@ -84,10 +84,12 @@ Route::controller(ApplicationRecordController::class)->group(function(){
     Route::get('/dashboard/job/view-application/{job_id}','viewApplication');
     Route::get('/dashboard/job/viewResume/{candidate_id}','viewCandidateResume');
     Route::post('/dashboard/job/UpdateStatus/{user_id}/{status}','updatestatus');
+    Route::delete('/dashboard/job/deleteApplication/{job_id}','deleteApplication');
 });
 
 Route::controller(SaveJobController::class)->group(function(){
     Route::post('/dashboard/job/save/{user_id}/{job_id}','save');
+    Route::get('/dashboard/job/isSaved/{user_id}/{job_id}','isJobSaved');
     Route::delete('/dashboard/job/unsave/{user_id}/{job_id}','unsave');
     Route::get('/dashboard/job/viewSaveJob/{user_id}/{job_id}','viewSavedJobDetails');
     Route::get('/dashboard/job/viewAllSaveJob/{user_id}','viewAllSavedJobs');

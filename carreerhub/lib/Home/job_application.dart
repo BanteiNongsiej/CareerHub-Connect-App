@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:carreerhub/GetuserId.dart';
 import 'package:carreerhub/api.dart';
+import 'package:carreerhub/helper/commonhelper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -106,9 +109,55 @@ class _JobApplicationState extends State<JobApplication> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    job!.title,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Stack(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              job!.title,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          IconButton(
+                            iconSize: 20,
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                        "Are you sure you want to delete this job?"),
+                                    content: Text(
+                                        "Note: All applications will be deleted from this job."),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                        },
+                                        child: Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          deleteJob(widget
+                                              .jobId); // Call deleteJob function with job.id
+                                          Navigator.of(context)
+                                              .pop(); // Close the dialog
+                                        },
+                                        child: Text("Delete"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            icon: FaIcon(FontAwesomeIcons.trash),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   SizedBox(height: 8),
                   Text(job!.address),
@@ -139,6 +188,48 @@ class _JobApplicationState extends State<JobApplication> {
               ),
             ),
     );
+  }
+
+  Future<void> deleteJob(int jobId) async {
+    try {
+      var url =
+          Uri.parse('http://10.0.3.2:8000/api/dashboard/job/delete/$jobId');
+
+      var response = await http.delete(url);
+      await deleteApplication(jobId);
+
+      if (response.statusCode == 200) {
+        print('Job deleted successfully');
+        CommonHelper.animatedSnackBar(
+            context, 'Job deleted successfully', AnimatedSnackBarType.info);
+        Navigator.pop(context);
+      } else {
+        print('Failed to delete job: ${response.statusCode}');
+        CommonHelper.animatedSnackBar(
+            context,
+            'Failed to delete job. Please try again later',
+            AnimatedSnackBarType.error);
+      }
+    } catch (e) {
+      print('Exception while deleting job: $e');
+    }
+  }
+
+  Future<void> deleteApplication(int jobId) async {
+    try {
+      final url = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/deleteApplication/$jobId'
+          : 'http://localhost:8000/api/dashboard/job/deleteApplication/$jobId';
+      final response = await http.delete(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        print('Application deleted successfully');
+      } else {
+        print('Failed to delete application: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception while deleting application: $e');
+    }
   }
 
   Widget buildJobDetailsModal() {
@@ -188,7 +279,7 @@ class _JobApplicationState extends State<JobApplication> {
         buildDetailRow('Address:', job.address),
         buildDetailRow('Job Type:', job.job_type),
         buildDetailRow('Salary:',
-            formatSalary(job!.min_salary, job!.max_salary, job!.salary_period)),
+            formatSalary(job.min_salary, job.max_salary, job.salary_period)),
         buildDetailRow('Shift Type:', job.shift_type ?? 'Not specified'),
         buildDetailRow('Number of People:', job.no_people),
         buildDetailRow(

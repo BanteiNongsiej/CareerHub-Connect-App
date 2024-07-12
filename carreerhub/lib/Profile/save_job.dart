@@ -1,4 +1,5 @@
 //import 'package:carreerhub/Home/job_details.dart';
+import 'package:carreerhub/Profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -52,6 +53,7 @@ class _SavedJobsScreenState extends State<SavedJobsScreen> {
               .toList();
         }
         isLoading = false;
+        print(address);
       });
     } else {
       throw Exception('Failed to loads jobs');

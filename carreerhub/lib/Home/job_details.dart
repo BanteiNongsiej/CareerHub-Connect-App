@@ -19,6 +19,7 @@ class _JobDetailsState extends State<JobDetails> {
   Job? job;
   bool isLoading = true;
   bool isSaving = false;
+  bool isSaved = false;
   int userId = 0;
 
   @override
@@ -40,8 +41,27 @@ class _JobDetailsState extends State<JobDetails> {
         print('job id: ${widget.jobId}');
         isLoading = false;
       });
+      await checkIfJobIsSaved();
     } else {
       throw Exception('Failed to load job details');
+    }
+  }
+
+  Future<void> checkIfJobIsSaved() async {
+    final response = await http.get(
+      Uri.parse(
+          'http://10.0.3.2:8000/api/dashboard/job/isSaved/$userId/${widget.jobId}'),
+    );
+    print('Response body: ${response.body}');
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      setState(() {
+        isSaved = responseData['isSaved'] ?? false;
+        print('isSaved:{$isSaved}');
+      });
+    } else {
+      CommonHelper.animatedSnackBar(
+          context, 'Failed to check save status', AnimatedSnackBarType.error);
     }
   }
 
@@ -49,7 +69,6 @@ class _JobDetailsState extends State<JobDetails> {
     setState(() {
       isSaving = true;
     });
-
     try {
       final response = await http.post(
         Uri.parse(
@@ -62,17 +81,12 @@ class _JobDetailsState extends State<JobDetails> {
           'user_id': userId,
         }),
       );
-
       await Future.delayed(Duration(seconds: 2)); // Adding delay of 3 seconds
-
       if (response.statusCode == 201) {
         CommonHelper.animatedSnackBar(
             context, 'Job saved successfully', AnimatedSnackBarType.success);
       } else if (response.statusCode == 400) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text(responseData['message'])),
-        // );
         CommonHelper.animatedSnackBar(
             context, responseData['message'], AnimatedSnackBarType.info);
       } else {
@@ -83,6 +97,47 @@ class _JobDetailsState extends State<JobDetails> {
       print(e);
       CommonHelper.animatedSnackBar(
           context, 'Failed to save job', AnimatedSnackBarType.error);
+    } finally {
+      setState(() {
+        isSaving = false;
+      });
+    }
+  }
+
+  Future<void> unsaveJob() async {
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      final response = await http.delete(
+        Uri.parse(
+            'http://10.0.3.2:8000/api/dashboard/job/unsave/$userId/${widget.jobId}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      await Future.delayed(Duration(seconds: 2)); // Adding delay of 2 seconds
+
+      if (response.statusCode == 200) {
+        CommonHelper.animatedSnackBar(
+            context, 'Job unsaved successfully', AnimatedSnackBarType.success);
+        setState(() {
+          isSaved = false;
+        });
+      } else if (response.statusCode == 400 || response.statusCode == 404) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        CommonHelper.animatedSnackBar(
+            context, responseData['message'], AnimatedSnackBarType.info);
+      } else {
+        CommonHelper.animatedSnackBar(
+            context, 'Failed to unsave job', AnimatedSnackBarType.error);
+      }
+    } catch (e) {
+      print(e);
+      CommonHelper.animatedSnackBar(
+          context, 'Failed to unsave job', AnimatedSnackBarType.error);
     } finally {
       setState(() {
         isSaving = false;
@@ -231,9 +286,8 @@ class _JobDetailsState extends State<JobDetails> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: isSaving ? null : saveJob,
+                  onPressed: isSaving ? null : (isSaved ? unsaveJob : saveJob),
                   style: ElevatedButton.styleFrom(
-                    //primary: Colors.grey,
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     textStyle: TextStyle(fontSize: 16, color: Colors.black),
                   ),
@@ -243,7 +297,7 @@ class _JobDetailsState extends State<JobDetails> {
                               AlwaysStoppedAnimation<Color>(Colors.black54),
                         )
                       : Text(
-                          'Save this job',
+                          isSaved ? 'Unsave this job' : 'Save this job',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                 ),

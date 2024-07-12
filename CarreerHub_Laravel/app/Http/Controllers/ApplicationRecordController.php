@@ -158,6 +158,40 @@ class ApplicationRecordController extends Controller
         ], 500);
     }
 }
+public function deleteApplication($job_id)
+{
+    try {
+        // Find all application records based on job_id
+        $application_records = Application_Record::where('job_id', $job_id)->get();
+
+        if ($application_records->isEmpty()) {
+            return response()->json([
+                'error' => 'No application records found for the given job ID',
+            ], 404);
+        }
+
+        foreach ($application_records as $application_record) {
+            // Delete the resume file from storage if it exists
+            $filePath = 'public/' . $application_record->resume;
+            if (Storage::exists($filePath)) {
+                Storage::delete($filePath);
+            }
+        }
+
+        // Delete all application records with the given job_id
+        Application_Record::where('job_id', $job_id)->delete();
+
+        return response()->json([
+            'message' => 'All application records for the job deleted successfully',
+        ], 200);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'error' => 'An error occurred while deleting the application records',
+            'details' => $e->getMessage(),
+        ], 500);
+    }
+}
 
 
 }

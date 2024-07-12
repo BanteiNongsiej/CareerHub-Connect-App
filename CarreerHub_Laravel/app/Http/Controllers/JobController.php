@@ -149,15 +149,21 @@ class JobController extends Controller
     public function delete($job_id){
         try{
             $job=Job::find($job_id);
+            if (!$job) {
+                return response()->json([
+                    'error' => 'Job not found',
+                ], 404);
+            }
             $job->delete();
             return response()->json([
                 "data"=>$job,
                 "message"=>"Job deleted successfully",
-                "statuscode"
+                "statuscode"=>'200'
             ],200);
         }catch(Exception $e){
             return response()->json([
-                "message"=>"Job deleted successfully"
+                "message"=>"Job deleted successfully",
+                "details"=> $e->getMessage(),
             ]);
         }
     }

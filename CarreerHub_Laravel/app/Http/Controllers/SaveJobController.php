@@ -60,6 +60,22 @@ class SaveJobController extends Controller
                     'message' => 'Job not found!',
                     ], 404);
     }
+    public function isJobSaved($user_id, $job_id) {
+        if (!User::find($user_id) || !Job::find($job_id)) {
+            return response()->json([
+                'message' => 'Invalid user_id or job_id',
+            ], 400);
+        }
+    
+        $saveJob = save_job::where('user_id', $user_id)
+                           ->where('job_id', $job_id)
+                           ->first();
+    
+        return response()->json([
+            'isSaved' => $saveJob ? true : false,
+        ], 200);
+    }
+    
     public function viewSavedJobDetails($user_id, $job_id)
     {
         $saveJob = save_job::where('user_id', $user_id)
@@ -98,13 +114,14 @@ class SaveJobController extends Controller
 
     $jobDetails = $savedJobs->map(function ($savedJob) {
         $job = Job::find($savedJob->job_id);
+        $fullAddress=$this->getAddress($job);
         if ($job) {
             return [
                 'id' => $job->id,
                 'user_id' => $savedJob->user_id,
                 'title' => $job->title,
                 'name' => $job->name,
-                'address' => $job->address, // Assuming 'address' is a direct property of Job model
+                'address' => $fullAddress, // Assuming 'address' is a direct property of Job model
                 'min_salary' => $job->min_salary,
                 'max_salary' => $job->max_salary,
                 'salary_period' => $job->salary_period,
@@ -122,6 +139,10 @@ class SaveJobController extends Controller
     return response()->json([
         'data' => $jobDetails,
     ], 200);
+}
+public function getAddress($job) {
+    $addressParts = [$job->street,$job->pincode, $job->city,$job->city,$job->state, $job->country ];
+    return implode(', ', array_filter($addressParts));
 }
 
 }
