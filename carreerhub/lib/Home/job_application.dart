@@ -192,19 +192,31 @@ class _JobApplicationState extends State<JobApplication> {
 
   Future<void> deleteJob(int jobId) async {
     try {
-      var url =
-          Uri.parse('http://10.0.3.2:8000/api/dashboard/job/delete/$jobId');
+      var url = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/delete/$jobId'
+          : 'http://localhost:8000/api/dashboard/job/delete/$jobId';
 
-      var response = await http.delete(url);
-      await deleteApplication(jobId);
+      var jobDeleteResponse = await http.delete(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        print('Job deleted successfully');
-        CommonHelper.animatedSnackBar(
-            context, 'Job deleted successfully', AnimatedSnackBarType.info);
-        Navigator.pop(context);
+      if (jobDeleteResponse.statusCode == 200) {
+        final applicationDeleteSuccess = await deleteApplication(jobId);
+        if (applicationDeleteSuccess) {
+          print('Job and associated applications deleted successfully');
+          CommonHelper.animatedSnackBar(
+              context,
+              'Job and associated applications deleted successfully',
+              AnimatedSnackBarType.info);
+          Navigator.pop(context);
+        } else {
+          print('Job deleted, but no associated applications found');
+          CommonHelper.animatedSnackBar(
+              context,
+              'Job deleted successfully. No associated applications found.',
+              AnimatedSnackBarType.info);
+          Navigator.pop(context);
+        }
       } else {
-        print('Failed to delete job: ${response.statusCode}');
+        print('Failed to delete job: ${jobDeleteResponse.statusCode}');
         CommonHelper.animatedSnackBar(
             context,
             'Failed to delete job. Please try again later',
@@ -212,23 +224,37 @@ class _JobApplicationState extends State<JobApplication> {
       }
     } catch (e) {
       print('Exception while deleting job: $e');
+      CommonHelper.animatedSnackBar(
+          context,
+          'An error occurred while deleting the job. Please try again later',
+          AnimatedSnackBarType.error);
     }
   }
 
-  Future<void> deleteApplication(int jobId) async {
+  Future<bool> deleteApplication(int jobId) async {
     try {
-      final url = Platform.isAndroid
+      final applicationDeleteUrl = Platform.isAndroid
           ? 'http://10.0.3.2:8000/api/dashboard/job/deleteApplication/$jobId'
           : 'http://localhost:8000/api/dashboard/job/deleteApplication/$jobId';
-      final response = await http.delete(Uri.parse(url));
 
-      if (response.statusCode == 200) {
+      final applicationDeleteResponse =
+          await http.delete(Uri.parse(applicationDeleteUrl));
+
+      if (applicationDeleteResponse.statusCode == 200) {
         print('Application deleted successfully');
+        return true;
+      } else if (applicationDeleteResponse.statusCode == 404) {
+        // No applications found for this job
+        print('No applications found for this job');
+        return false;
       } else {
-        print('Failed to delete application: ${response.statusCode}');
+        print(
+            'Failed to delete application: ${applicationDeleteResponse.statusCode}');
+        return false;
       }
     } catch (e) {
       print('Exception while deleting application: $e');
+      return false;
     }
   }
 

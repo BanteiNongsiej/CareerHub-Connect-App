@@ -1,15 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:carreerhub/GetuserId.dart';
 import 'package:carreerhub/api.dart';
 import 'package:carreerhub/helper/commonhelper.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class ApplyJobScreeen extends StatefulWidget {
@@ -189,6 +192,111 @@ class _ApplyJobScreeenState extends State<ApplyJobScreeen> {
     }
   }
 
+  void viewResume(int candidate_id) async {
+    print('Viewing resume of canidate of this job id ${candidate_id}');
+    try {
+      // Show CircularProgressIndicator while loading
+      showDialog(
+        context: context,
+        barrierDismissible: false, // prevent closing dialog by tapping outside
+        builder: (context) => AlertDialog(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Loading Resume...',
+                style: TextStyle(fontSize: 20),
+              ),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+          content: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+
+      // Simulate delay for 3 seconds (remove this in production)
+      await Future.delayed(Duration(seconds: 3));
+
+      // Construct the API URL for fetching the resume
+      final url = Platform.isAndroid
+          ? 'http://10.0.3.2:8000/api/dashboard/job/viewResume/$candidate_id'
+          : 'http://localhost:8000/api/dashboard/job/viewResume/$candidate_id';
+
+      final response = await http.get(Uri.parse(url));
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        // Get the file bytes
+        final Uint8List fileBytes = response.bodyBytes;
+
+        // Write the file to a temporary directory
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/resume.pdf');
+        await tempFile.writeAsBytes(fileBytes);
+
+        // Close the CircularProgressIndicator dialog
+        Navigator.of(context).pop();
+
+        // Show the PDF in a dialog
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Resume'),
+              content: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Container(
+                  width: double.maxFinite,
+                  height: 500, // Adjust the height as needed
+                  child: PDFView(
+                    filePath: tempFile.path,
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        throw Exception('Failed to load resume');
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error loading resume: $e');
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to load resume. Please try again later.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -271,21 +379,24 @@ class _ApplyJobScreeenState extends State<ApplyJobScreeen> {
                                 ),
                                 PopupMenuButton<String>(
                                   onSelected: (String value) {
-                                    if (value == 'edit') {
-                                      pickResume(); // Implement your edit functionality here
-                                    } else if (value == 'delete') {
+                                    // if (value == 'edit') {
+                                    //   pickResume(); // Implement your edit functionality here
+                                    // } else
+                                    if (value == 'delete') {
                                       deleteResume(); // Implement your delete functionality here
-                                    } else if (value == 'view') {}
+                                    } else if (value == 'view') {
+                                      viewResume(userId);
+                                    }
                                   },
                                   itemBuilder: (BuildContext context) =>
                                       <PopupMenuEntry<String>>[
-                                    const PopupMenuItem<String>(
-                                      value: 'edit',
-                                      child: ListTile(
-                                        leading: Icon(Icons.edit),
-                                        title: Text('Edit'),
-                                      ),
-                                    ),
+                                    // const PopupMenuItem<String>(
+                                    //   value: 'edit',
+                                    //   child: ListTile(
+                                    //     leading: Icon(Icons.edit),
+                                    //     title: Text('Edit'),
+                                    //   ),
+                                    // ),
                                     const PopupMenuItem<String>(
                                       value: 'delete',
                                       child: ListTile(
