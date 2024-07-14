@@ -129,8 +129,8 @@ class UserInfoController extends Controller
         }
         // Join the non-empty parts with spaces
         return implode(' ', $nameParts);
-        }
-        public function updateUserDetails($id, Request $request){
+    }
+    public function updateUserDetails($id, Request $request){
             try {
                 $user = User::find($id);
                 $user->first_name=$request->first_name;
@@ -207,6 +207,103 @@ class UserInfoController extends Controller
                 ], 500);
             }
     }
+    public function updateUserResume($id, Request $request)
+    {
+        try {
+            $user = User::find($id);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+
+            $request->validate([
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'first_name' => 'nullable|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'last_name' => 'nullable|string|max:255',
+                'mobile_number' => 'nullable|string|max:255',
+                'dob' => 'nullable|date',
+                'gender' => 'nullable|string|max:255',
+                'country' => 'nullable|string|max:255',
+                'state' => 'nullable|string|max:255',
+                'city' => 'nullable|string|max:255',
+                'street' => 'nullable|string|max:255',
+                'pincode' => 'nullable|string|max:255',
+            ]);
+
+            $user->email = $request->input('email');
+            $user->first_name = $request->input('first_name');
+            $user->middle_name = $request->input('middle_name');
+            $user->last_name = $request->input('last_name');
+            $user->mobile_number = $request->input('mobile_number');
+            $user->dob = $request->input('dob');
+            $user->gender = $request->input('gender');
+            $user->country = $request->input('country');
+            $user->state = $request->input('state');
+            $user->city = $request->input('city');
+            $user->street = $request->input('street');
+            $user->pincode = $request->input('pincode');
+            $user->save();
+
+            return response()->json([
+                'message' => 'User details updated successfully',
+                'data' => [
+                    'email' => $user->email,
+                    'first_name' => $user->first_name,
+                    'middle_name' => $user->middle_name,
+                    'last_name' => $user->last_name,
+                    'mobile_number' => $user->mobile_number,
+                    'country'=>$user->country,
+                    'state'=>$user->state,
+                    'city'=>$user->city,
+                    'street'=>$user->street,
+                    'pincode'=>$user->pincode,
+                    'dob'=>$user->dob,
+                    'gender'=>$user->gender,
+                ],
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Profile update failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function viewUserResumeDetails($id)
+    {
+        try {
+            $user = User::find($id);
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found',
+                    'status' => 404,
+                ], 404);
+            }
+            return response()->json([
+                'data' => [
+                    'email' => $user->email,
+                    'first_name' => $user->first_name,
+                    'middle_name' => $user->middle_name,
+                    'last_name' => $user->last_name,
+                    'mobile_number' => $user->mobile_number,
+                    'dob' => $user->dob,
+                    'gender' => $user->gender,
+                    'country' => $user->country,
+                    'state' => $user->state,
+                    'city' => $user->city,
+                    'street' => $user->street,
+                    'pincode' => $user->pincode,
+                ],
+                'message' => 'User details retrieved successfully',
+                'status' => 200,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve user details',
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
+        }
+    }
     public function deleteUser($id)
     {
         try {
@@ -224,5 +321,72 @@ class UserInfoController extends Controller
                     'error' => $e->getMessage()], 500);
         }
     }
+    public function getProfile($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'first_name' => $user->first_name,
+                    'middle_name' => $user->middle_name,
+                    'last_name' => $user->last_name,
+                    'mobile_number' => $user->mobile_number,
+                    'email' => $user->email,
+                    'country' => $user->country,
+                    'state' => $user->state,
+                    'city' => $user->city,
+                    'street' => $user->street,
+                    'pincode' => $user->pincode,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+    }
+    public function updateProfileData(Request $request, $id)
+    {
+        $request->validate([
+            'first_name' => 'nullable|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'mobile_number' => 'nullable|string|max:20',
+            'email' => 'required|string|email|max:255',
+            'country' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'street' => 'nullable|string|max:255', // Ensure this allows nulls and strings up to 255 characters
+            'pincode' => 'nullable|string|max:20',
+        ]);
+        try {
+            $user = User::findOrFail($id);
+            $user->update([
+                'first_name' => $request->input('first_name'),
+                'middle_name' => $request->input('middle_name'),
+                'last_name' => $request->input('last_name'),
+                'mobile_number' => $request->input('mobile_number'),
+                'email' => $request->input('email'),
+                'country' => $request->input('country'),
+                'state' => $request->input('state'),
+                'city' => $request->input('city'),
+                'street' => $request->input('street'),
+                'pincode' => $request->input('pincode'),
+            ]);
+            $user->save();
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'data' => $user->fresh(), // Retrieve fresh updated data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update profile',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     
 }

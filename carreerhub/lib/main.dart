@@ -9,6 +9,7 @@ import 'package:carreerhub/Admin/user_list.dart';
 import 'package:carreerhub/Home/apply_job.dart';
 import 'package:carreerhub/Home/job_application.dart';
 import 'package:carreerhub/Home/job_details.dart';
+import 'package:carreerhub/Profile/edit_profile.dart';
 import 'package:carreerhub/Profile/save_job.dart';
 import 'package:carreerhub/Resume/build_resume.dart';
 import 'package:carreerhub/Resume/review_resume.dart';
@@ -73,7 +74,8 @@ class MyApp extends StatelessWidget {
         '/job_application': (context) => JobApplication(
             jobId: ModalRoute.of(context)!.settings.arguments as int),
         '/listusers': (context) => ListUsers(),
-        '/savejobs':(context)=> SavedJobsScreen(),
+        '/savejobs': (context) => SavedJobsScreen(),
+        '/editProfile': (context) => EditProfileScreen(),
       },
     );
   }

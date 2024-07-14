@@ -10,7 +10,22 @@ class CertificationController extends Controller
 {
     public function insert(Request $request, $user_id)
     {
+        $request->validate([
+            'certification_name' => 'required|string|max:255',
+        ]);
+
         try {
+            // Check if the user already has a certification record
+            $existingCertification = Certification::where('user_id', $user_id)->first();
+
+            if ($existingCertification) {
+                return response()->json([
+                    'message' => 'Certification record already exists for this user',
+                    'status' => 400,
+                ], 400);
+            }
+
+            // Create new certification record
             $certification = new Certification();
             $certification->user_id = $user_id;
             $certification->certification_name = $request->certification_name;
@@ -23,14 +38,18 @@ class CertificationController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => $e->getMessage(),
-                'status' => 404,
-            ], 404);
+                'message' => 'Failed to insert certification record',
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
         }
     }
-
     public function update(Request $request, $user_id)
     {
+        $request->validate([
+            'certification_name' => 'required|string|max:255',
+        ]);
+
         try {
             // Find the certification record by user_id
             $certification = Certification::where('user_id', $user_id)->first();
@@ -55,12 +74,12 @@ class CertificationController extends Controller
         } catch (Exception $e) {
             // Return error response if update fails
             return response()->json([
-                'message' => $e->getMessage(),
+                'message' => 'Failed to update certification record',
+                'error' => $e->getMessage(),
                 'status' => 500,
             ], 500);
         }
     }
-
     public function delete($user_id)
     {
         try {
@@ -85,12 +104,12 @@ class CertificationController extends Controller
         } catch (Exception $e) {
             // Return error response if delete fails
             return response()->json([
-                'message' => $e->getMessage(),
+                'message' => 'Failed to delete certification record',
+                'error' => $e->getMessage(),
                 'status' => 500,
             ], 500);
         }
     }
-
     public function show($user_id)
     {
         try {
@@ -114,7 +133,8 @@ class CertificationController extends Controller
         } catch (Exception $e) {
             // Return error response if retrieval fails
             return response()->json([
-                'message' => $e->getMessage(),
+                'message' => 'Failed to retrieve certification record',
+                'error' => $e->getMessage(),
                 'status' => 500,
             ], 500);
         }

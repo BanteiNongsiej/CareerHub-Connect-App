@@ -39,6 +39,10 @@ Route::controller(UserInfoController::class)->group(function(){
     Route::put('/dashboard/user/updateUserDetails/{id}', 'updateUserDetails');
     Route::delete('/dashboard/user/deleteUser/{id}', 'deleteUser');
     Route::get('/dashboard/ViewAllUsers', 'getUsers');
+    Route::get('/dashboard/user/getProfile/{id}','getProfile');
+    Route::put('/dashboard/updateProfile/{id}','updateProfileData');
+    Route::put('/dashboard/user/updateUserResume/{id}', 'updateUserResume');
+    Route::get('/dashboard/user/ViewUserResume/{id}', 'viewUserResumeDetails');
 });
 
 Route::controller(ResumeController::class)->group(function(){
@@ -59,22 +63,22 @@ Route::controller(JobController::class)->group(function(){
 
 Route::controller(ExperienceController::class)->group(function(){
     Route::post('/dashboard/resume/InsertExperience/{user_id}','insert');
-    Route::post('/dashboard/resume/UpdateExperience/{user_id}','update');
+    Route::put('/dashboard/resume/UpdateExperience/{user_id}','update');
     Route::delete('/dashboard/resume/DeleteExperience/{user_id}','delete');
     Route::get('/dashboard/resume/getExperience/{user_id}','show');
 });
 
 Route::controller(EducationController::class)->group(function(){
     Route::post('/dashboard/resume/InsertEducation/{user_id}','insert');
-    Route::post('/dashboard/resume/UpdateEducation/{user_id}','update');
+    Route::put('/dashboard/resume/UpdateEducation/{user_id}','update');
     Route::delete('/dashboard/resume/DeleteEducation/{user_id}','delete');
-    Route::get('/dashboard/resume/showEducation/{user_id}','show');
+    Route::get('/dashboard/resume/ShowEducation/{user_id}','show');
 });
 
 Route::controller(CertificationController::class)->group(function(){
     Route::post('/dashboard/resume/InsertCertification/{user_id}','insert');
     Route::get('/dashboard/resume/ShowCertification/{user_id}','show');
-    Route::post('/dashboard/resume/UpdateCertification/{user_id}','update');
+    Route::put('/dashboard/resume/UpdateCertification/{user_id}','update');
     Route::delete('/dashboard/resume/DeleteCertification/{user_id}','delete');
 });
 

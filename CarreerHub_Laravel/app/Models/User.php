@@ -30,11 +30,11 @@ class User extends Authenticatable
         'country',
         'state',
         'city',
-        'locality',
-        'district',
+        'street',
         'pincode',
         'dob',
-        'gender'
+        'gender',
+        'resume'
     ];
 
     /**

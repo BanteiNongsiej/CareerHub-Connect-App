@@ -10,7 +10,18 @@ use Illuminate\Http\Request;
 class ExperienceController extends Controller
 {
     public function insert(Request $request, $user_id)
-    {
+    {   
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'start_month' => 'nullable|string|255',
+            'start_year' => 'nullable|string|max:255',
+            'finish_month' => 'nullable|string|max:255',
+            'finish_year' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+        ]);
         try {
             $experience = new Experience();
             $experience->user_id = $user_id;
@@ -38,8 +49,21 @@ class ExperienceController extends Controller
         }
     }
 
-    public function update(ExperienceRequest $request, $user_id)
+    public function update(Request $request, $user_id)
     {
+        // Define the validation rules
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'start_month' => 'nullable|string|max:255',
+            'start_year' => 'nullable|string|max:255',
+            'finish_month' => 'nullable|string|max:255',
+            'finish_year' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
         try {
             $experience = Experience::where('user_id', $user_id)->first();
             if (!$experience) {
@@ -68,7 +92,8 @@ class ExperienceController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => $e->getMessage(),
+                'message' => 'Failed to update experience',
+                'error' => $e->getMessage(),
                 'status' => 500,
             ], 500);
         }
@@ -86,7 +111,17 @@ class ExperienceController extends Controller
             }
 
             return response()->json([
-                'data' => $experience,
+                'data' => [
+                    'title' => $experience->title,
+                    'company' => $experience->company,
+                    'state' => $experience->state,
+                    'city' => $experience->city,
+                    'start_month' => $experience->start_month,
+                    'start_year' => $experience->start_year,
+                    'finish_month' => $experience->finish_month,
+                    'finish_year' => $experience->finish_year,
+                    'description' => $experience->description,
+                ],
                 'message' => 'Experience retrieved successfully',
                 'status' => 200,
             ], 200);

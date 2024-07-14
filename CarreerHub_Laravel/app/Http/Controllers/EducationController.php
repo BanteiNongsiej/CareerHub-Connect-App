@@ -10,22 +10,37 @@ class EducationController extends Controller
 {
     public function insert(Request $request, $user_id)
     {
+        $request->validate([
+            'level' => 'nullable|string|max:255',
+            'field' => 'nullable|string|max:255',
+            'school_name' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'locality' => 'nullable|string|max:255',
+            'pincode' => 'nullable|string|max:6',
+            'start_month' => 'nullable|string|max:255',
+            'start_year' => 'nullable|integer|min:1900|max:9999',
+            'finish_month' => 'nullable|string|max:255',
+            'finish_year' => 'nullable|integer|min:1900|max:9999',
+            'grade' => 'nullable|string|max:255',
+            'skills' => 'nullable|string',
+        ]);
+
         try {
+            // Check if the user already has an education record
+            $existingEducation = Education::where('user_id', $user_id)->first();
+
+            if ($existingEducation) {
+                return response()->json([
+                    'message' => 'Education record already exists for this user',
+                    'status' => 400,
+                ], 400);
+            }
+
+            // Create new education record
             $education = new Education();
+            $education->fill($request->all());
             $education->user_id = $user_id;
-            $education->level = $request->level;
-            $education->field = $request->field;
-            $education->school_name = $request->school_name;
-            $education->state = $request->state;
-            $education->city = $request->city;
-            $education->locality = $request->locality;
-            $education->pincode = $request->pincode;
-            $education->start_month = $request->start_month;
-            $education->start_year = $request->start_year;
-            $education->finish_month = $request->finish_month;
-            $education->finish_year = $request->finish_year;
-            $education->grade = $request->grade;
-            $education->skills = $request->skills;
             $education->save();
 
             return response()->json([
@@ -37,18 +52,31 @@ class EducationController extends Controller
             return response()->json([
                 'message' => 'Failed to insert education record',
                 'error' => $e->getMessage(),
-                'status' => 404,
-            ], 404);
+                'status' => 500,
+            ], 500);
         }
     }
-
     public function update(Request $request, $user_id)
     {
+        $request->validate([
+            'level' => 'nullable|string|max:255',
+            'field' => 'nullable|string|max:255',
+            'school_name' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'locality' => 'nullable|string|max:255',
+            'pincode' => 'nullable|string|max:6',
+            'start_month' => 'nullable|string|max:255',
+            'start_year' => 'nullable|integer|min:1900|max:9999',
+            'finish_month' => 'nullable|string|max:255',
+            'finish_year' => 'nullable|integer|min:1900|max:9999',
+            'grade' => 'nullable|string|max:255',
+            'skills' => 'nullable|string',
+        ]);
+
         try {
-            // Find the education record by user_id
             $education = Education::where('user_id', $user_id)->first();
 
-            // If education record not found, return error response
             if (!$education) {
                 return response()->json([
                     'message' => 'Education record not found',
@@ -56,21 +84,7 @@ class EducationController extends Controller
                 ], 404);
             }
 
-            // Update education record attributes with data from request
-            $education->level = $request->level;
-            $education->field = $request->field;
-            $education->school_name = $request->school_name;
-            $education->state = $request->state;
-            $education->city = $request->city;
-            $education->locality = $request->locality;
-            $education->pincode = $request->pincode;
-            $education->start_month = $request->start_month;
-            $education->start_year = $request->start_year;
-            $education->finish_month = $request->finish_month;
-            $education->finish_year = $request->finish_year;
-            $education->grade = $request->grade;
-            $education->skills = $request->skills;
-            // Save the updated education record
+            $education->fill($request->all());
             $education->save();
 
             return response()->json([
@@ -79,7 +93,6 @@ class EducationController extends Controller
                 'status' => 200,
             ], 200);
         } catch (Exception $e) {
-            // Return error response if update fails
             return response()->json([
                 'message' => 'Failed to update education record',
                 'error' => $e->getMessage(),
@@ -87,14 +100,11 @@ class EducationController extends Controller
             ], 500);
         }
     }
-
     public function delete($user_id)
     {
         try {
-            // Find the education record by user_id
             $education = Education::where('user_id', $user_id)->first();
 
-            // If education record not found, return error response
             if (!$education) {
                 return response()->json([
                     'message' => 'Education record not found',
@@ -102,7 +112,6 @@ class EducationController extends Controller
                 ], 404);
             }
 
-            // Delete the education record
             $education->delete();
 
             return response()->json([
@@ -110,7 +119,6 @@ class EducationController extends Controller
                 'status' => 200,
             ], 200);
         } catch (Exception $e) {
-            // Return error response if delete fails
             return response()->json([
                 'message' => 'Failed to delete education record',
                 'error' => $e->getMessage(),
@@ -118,14 +126,11 @@ class EducationController extends Controller
             ], 500);
         }
     }
-
     public function show($user_id)
     {
         try {
-            // Find the education record by user_id
             $education = Education::where('user_id', $user_id)->first();
 
-            // If education record not found, return error response
             if (!$education) {
                 return response()->json([
                     'message' => 'Education record not found',
@@ -133,14 +138,12 @@ class EducationController extends Controller
                 ], 404);
             }
 
-            // Return the education record details as JSON
             return response()->json([
                 'data' => $education,
                 'message' => 'Education record retrieved successfully',
                 'status' => 200,
             ], 200);
         } catch (Exception $e) {
-            // Return error response if retrieval fails
             return response()->json([
                 'message' => 'Failed to retrieve education record',
                 'error' => $e->getMessage(),

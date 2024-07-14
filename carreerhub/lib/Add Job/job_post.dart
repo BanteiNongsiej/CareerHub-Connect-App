@@ -96,29 +96,12 @@ class _JobPostState extends State<JobPost> {
   };
   final Map<String, Map<String, List<String>>> cities = {
     'India': {
-      'Andhra Pradesh': [
-        'Visakhapatnam',
-        'Vijayawada',
-        'Guntur',
-        'Nellore',
-        'Kurnool',
-        'Rajahmundry',
-        'Tirupati'
-      ],
+      'Andhra Pradesh': ['Visakhapatnam','Vijayawada','Guntur','Nellore','Kurnool','Rajahmundry','Tirupati'],
       'Arunachal Pradesh': ['Itanagar', 'Tawang', 'Pasighat'],
       'Assam': ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat'],
       'Bihar': ['Patna', 'Gaya', 'Bhagalpur', 'Muzaffarpur'],
       'Chhattisgarh': ['Raipur', 'Bhilai', 'Korba', 'Bilaspur'],
-      'Delhi': [
-        'New Delhi',
-        'Old Delhi',
-        'Noida',
-        'Gurgaon',
-        'Faridabad',
-        'Ghaziabad',
-        'Bahadurgarh',
-        'Sonepat'
-      ],
+      'Delhi': ['New Delhi','Old Delhi','Noida','Gurgaon','Faridabad','Ghaziabad','Bahadurgarh','Sonepat'],
       'Goa': ['Panaji', 'Margao', 'Vasco da Gama'],
       'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot'],
       'Haryana': ['Gurugram', 'Faridabad', 'Panipat', 'Ambala'],
@@ -127,14 +110,7 @@ class _JobPostState extends State<JobPost> {
       'Karnataka': ['Bengaluru', 'Mysuru', 'Mangaluru', 'Hubballi'],
       'Kerala': ['Thiruvananthapuram', 'Kochi', 'Kozhikode', 'Thrissur'],
       'Madhya Pradesh': ['Bhopal', 'Indore', 'Gwalior', 'Jabalpur'],
-      'Maharashtra': [
-        'Mumbai',
-        'Pune',
-        'Nagpur',
-        'Nashik',
-        'Aurangabad',
-        'Solapur'
-      ],
+      'Maharashtra': ['Mumbai','Pune','Nagpur','Nashik','Aurangabad','Solapur'],
       'Manipur': ['Imphal', 'Churachandpur', 'Thoubal'],
       'Meghalaya': ['Shillong', 'Tura', 'Nongpoh','Jowai'],
       'Mizoram': ['Aizawl', 'Lunglei', 'Champhai'],
@@ -146,16 +122,7 @@ class _JobPostState extends State<JobPost> {
       'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli'],
       'Telangana': ['Hyderabad', 'Warangal', 'Nizamabad', 'Khammam'],
       'Tripura': ['Agartala', 'Udaipur', 'Dharmanagar'],
-      'Uttar Pradesh': [
-        'Lucknow',
-        'Kanpur',
-        'Ghaziabad',
-        'Agra',
-        'Varanasi',
-        'Meerut',
-        'Prayagraj',
-        'Noida'
-      ],
+      'Uttar Pradesh': ['Lucknow','Kanpur','Ghaziabad','Agra','Varanasi','Meerut','Prayagraj','Noida'],
       'Uttarakhand': ['Dehradun', 'Haridwar', 'Roorkee'],
       'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol'],
     },

@@ -478,6 +478,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Text(
                             '$username',
                             textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
@@ -520,6 +521,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   SizedBox(height: 10),
                   Container(
+                    height: 80,
                     padding: EdgeInsets.all(15), // Add padding for spacing
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,6 +537,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               '$userEmail',
                               textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.blueGrey,
@@ -554,6 +557,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               '$mobile_number',
                               textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.blueGrey,
@@ -574,6 +578,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Text(
                                 '$address',
                                 textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.blueGrey,
@@ -585,6 +590,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 40),
                         Text(
                           "Resume",
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
@@ -781,6 +787,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Text(
                           '$username',
                           textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
@@ -827,65 +834,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          FaIcon(
-                            FontAwesomeIcons.solidEnvelope,
-                            size: 20.0,
-                            color: Colors.blueGrey,
-                          ),
-                          const SizedBox(width: 12.0),
-                          Text(
-                            '$userEmail',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.blueGrey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4),
-                      Row(
-                        children: [
-                          FaIcon(
-                            FontAwesomeIcons.phone,
-                            size: 20.0,
-                            color: Colors.blueGrey,
-                          ),
-                          const SizedBox(width: 12.0),
-                          Text(
-                            '$mobile_number',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.blueGrey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4),
-                      Row(
-                        children: [
-                          FaIcon(
-                            FontAwesomeIcons.locationDot,
-                            size: 20.0,
-                            color: Colors.blueGrey,
-                          ),
-                          const SizedBox(width: 12.0),
-                          Flexible(
-                            child: Text(
-                              '$address',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.blueGrey,
+                      InkWell(
+                        onTap: () {
+                          Navigator.pushNamed(context, '/editProfile');
+                        },
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              right: 16,
+                              top: 26,
+                              child: GestureDetector(
+                                onTap: () {
+                                  print('pressing');
+                                  Navigator.pushNamed(context, '/editProfile');
+                                },
+                                child: FaIcon(FontAwesomeIcons.angleRight),
                               ),
                             ),
-                          ),
-                        ],
+                            Container(
+                              width: double.infinity,
+                              height: 85,
+                              padding: EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(2),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      FaIcon(
+                                        FontAwesomeIcons.solidEnvelope,
+                                        size: 20.0,
+                                        color: Colors.blueGrey,
+                                      ),
+                                      const SizedBox(width: 12.0),
+                                      Text(
+                                        userEmail,
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.blueGrey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      FaIcon(
+                                        FontAwesomeIcons.phone,
+                                        size: 20.0,
+                                        color: Colors.blueGrey,
+                                      ),
+                                      const SizedBox(width: 12.0),
+                                      Text(
+                                        mobile_number,
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.blueGrey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      FaIcon(
+                                        FontAwesomeIcons.locationDot,
+                                        size: 20.0,
+                                        color: Colors.blueGrey,
+                                      ),
+                                      const SizedBox(width: 12.0),
+                                      Flexible(
+                                        child: Text(
+                                          address,
+                                          textAlign: TextAlign.center,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.blueGrey,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 40),
+                      Divider(),
                       Text(
                         "Resume",
                         style: TextStyle(
@@ -1030,35 +1074,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ],
+                      SizedBox(
+                        height: 16,
+                      ),
+                      const SizedBox(height: 20),
+                      Divider(),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/savejobs');
+                          },
+                          child: Text(
+                            'Saved',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          child: Text(
+                            'Logout',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/savejobs');
-                    },
-                    child: Text(
-                      'Saved',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Logout',
-                      style: TextStyle(fontSize: 16),
-                    ),
                   ),
                 ),
               ],
